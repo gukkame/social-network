@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+vite-config.js
+.gitignore
+.eslintrc.cjs
+.vscode
+.dockerignore
+Dockerfile
+dist
