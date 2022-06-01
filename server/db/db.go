@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-	"strings"
+
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 //MAIN DATA BASE CONNECTION FOR GLOBAL USE
@@ -14,23 +14,25 @@ var DBC *sql.DB
 func Database() {
 	DBC = OpenDB()
 
-	Initalize(DBC, "../database/dbtemplate.sql")
+	Migrations(DBC)
 
 	fmt.Println("Connection to database establised")
 }
 
-//READS `dbtemplate.sql` AND CREATES TABLES IF THEY DONT EXIST
-func Initalize(db *sql.DB, path string) {
-	file, err := os.ReadFile(path)
+func Migrations(db *sql.DB) {
+
+	//TAKES `../database/migrations` DIR AS A SOURCE OF MIGRATIONS
+	migrations := &migrate.FileMigrationSource{
+		Dir: "../database/migrations",
+	}
+
+	//EXECUTES THE MIGRATION (db conn pool, name, source, action)
+	n, err := migrate.Exec(db, "sqlite3", migrations, migrate.Up)
 	if err != nil {
-		fmt.Println("(db.go) Unable to os.ReadFile due to:")
-		log.Fatal(err)
+		fmt.Println("Error applying migrations: db.go")
 	}
-	//LOOPS THROUGH ALL THE SQL STATEMENTS IN `dbtemplate.sql`
-	requests := strings.SplitAfter(string(file), ";")
-	for _, request := range requests {
-		db.Exec(request)
-	}
+	fmt.Printf("Applied %d migrations to database.db!", n)
+	fmt.Println()
 }
 
 //OPENING DATABASE CONNECTION
