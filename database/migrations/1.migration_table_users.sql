@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS Users (
   nickname VARCHAR(255) NULL,
   about_me VARCHAR(255) NULL,
   avatar_image VARCHAR(255) NULL,
-  profile_status VARCHAR(255) NOT NULL,
+  profile_status VARCHAR(255) NOT NULL, 
   created_at DATETIME NOT NULL
 );
 
