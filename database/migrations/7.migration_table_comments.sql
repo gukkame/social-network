@@ -1,0 +1,13 @@
+-- +migrate Up
+CREATE TABLE IF NOT EXISTS Comments (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  content VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL,
+  user_id INTEGER NOT NULL,
+  post_id INTEGER NOT NULL,
+  FOREIGN KEY(user_id) REFERENCES Users(id),
+  FOREIGN KEY(post_id) REFERENCES Posts(id) ON DELETE CASCADE
+);
+
+-- +migrate Down
+DROP TABLE Comments;

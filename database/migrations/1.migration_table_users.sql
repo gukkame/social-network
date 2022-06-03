@@ -1,0 +1,23 @@
+/* FOREIGN KEY CONSTRAIN ON: NEEDED FOR 'ON DELETE CASCADE' TO WORK */
+-- +migrate Up
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS Users (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  age VARCHAR(255) NOT NULL,
+  gender VARCHAR(255) NOT NULL,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  nickname VARCHAR(255) NULL,
+  about_me VARCHAR(255) NULL,
+  avatar_image VARCHAR(255) NULL,
+  profile_status VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL
+);
+
+-- +migrate Down
+PRAGMA foreign_keys = OFF;
+DROP TABLE Users;
