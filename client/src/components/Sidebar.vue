@@ -11,7 +11,7 @@
 
             </li>
             <li v-if="LoggedIn">
-                <RouterLink to="/profile" class="href">
+                <RouterLink :to="{ name: 'profile', params: { id: returnPath } }" class="href">
                     <i class="fa fa-solid fa-user fa-2x"></i>
                     <span class="nav-text">
                         Profile
@@ -40,6 +40,7 @@ import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
 import router from "../router";
 export default {
+
     name: 'Header',
     props: {
         LoggedIn: {
@@ -52,6 +53,13 @@ export default {
         logOut() {
             document.cookie = 'Token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             router.go("/")
+        }
+    },
+
+    computed: {
+        returnPath() {
+            let path = document.cookie.split(":")
+            return path[1]
         }
     }
 }

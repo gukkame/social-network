@@ -1,7 +1,7 @@
 <template>
     <div class="login">
         <div class="formIcon">
-            <img class="formImg" src="../assets/images/logo.svg" />
+            <img class="loginformImg" src="../assets/images/logo.svg" />
         </div>
         <div class="loginform">
             <Form v-slot="{ errors }" @submit="login" :validation-schema="errorSchema">

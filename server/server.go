@@ -5,15 +5,15 @@ import (
 	"log"
 	"net/http"
 	db "real-time-forum/server/db"
-	ds "real-time-forum/server/services/data"
 	ath "real-time-forum/server/services/authentication"
+	ds "real-time-forum/server/services/data"
 	dsm "real-time-forum/server/services/data/messages"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	
+
 	//GOLANG CRUD API HANDLERS (CRUD = CREATE/READ/UPDATE/DELETE)
 	//AUTHENTICATION
 	http.HandleFunc("/signup", ds.SignUp)
@@ -21,10 +21,15 @@ func main() {
 	http.HandleFunc("/available/username", ds.Username)
 	http.HandleFunc("/available/email", ds.Email)
 	http.HandleFunc("/authedchat", ath.AuthChat)
-	
-	//GENERAL DATA
+
+	//PROFILE
 	http.HandleFunc("/profile", ds.Profile)
-	http.HandleFunc("/activity", ds.GetActivity)
+	http.HandleFunc("/changeprofile", ds.ChangeProfileStatus)
+	http.HandleFunc("/activity", ds.Activity)
+
+	//GROUPS
+	http.HandleFunc("/groups", ds.GetGroups)
+	http.HandleFunc("/creategroup", ds.NewGroup)
 
 	//POSTS & COMMENTS &
 	http.HandleFunc("/createpost", ds.CreatePost)
@@ -34,16 +39,21 @@ func main() {
 	http.HandleFunc("/onecategory", ds.GetOneCategory)
 	http.HandleFunc("/allcategory", ds.GetAllCategory)
 	http.HandleFunc("/createcomment", ds.CreateComment)
-	
+
 	//LIKES
 	http.HandleFunc("/likepost", ds.LikePost)
 	http.HandleFunc("/dislikepost", ds.DislikePost)
 	http.HandleFunc("/likecomment", ds.LikeComment)
 	http.HandleFunc("/dislikecomment", ds.DislikeComment)
-	
+
+	//FOLLOWING
+	http.HandleFunc("/follow", ds.PerformFollow)
+	http.HandleFunc("/checkfollow", ds.CheckFollowRequest)
+	http.HandleFunc("/cancelrequest", ds.CancelFollowRequest)
+
 	//CHAT SYSTEM
-	http.HandleFunc("/WSconnect", dsm.InitiateChat) 
-		
+	http.HandleFunc("/WSconnect", dsm.InitiateChat)
+
 	//OPENING AND CREATING DATABASE IF IT IS DELETED FOR SOME WIERD REASON (YOU SHOULD NEVER DELETE A DATABASE)
 	db.Database()
 

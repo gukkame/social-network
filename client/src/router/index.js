@@ -22,16 +22,28 @@ const router = createRouter({
       component: () => import('../pages/Signup.vue')
     },
     {
-      path: '/profile',
+      path: '/profile/:id',
       name: 'profile',
      
       component: () => import('../pages/Profile.vue')
     },
     {
-      path: '/activity',
+      path: '/profile/:id/activity',
       name: 'activity',
      
       component: () => import('../pages/Activity.vue')
+    },
+    {
+      path: '/profile/:id/followers',
+      name: 'followers',
+     
+      component: () => import('../pages/Following.vue')
+    },
+    {
+      path: '/creategroup',
+      name: 'creategroup',
+     
+      component: () => import('../pages/Groups.vue')
     },
 
     //CATEGORIES

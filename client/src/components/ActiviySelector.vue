@@ -1,12 +1,20 @@
 <template>
     <div class="d-flex justify-content-center col">
-        <RouterLink class="row text" to="/profile" style="text-decoration:none">
-            <div :class="[selected == 'profile' ? 'active' : '']" class="selectorCard d-flex justify-content-center row">
+        <RouterLink class="row text" :to="{ name: 'followers', params: { id: returnPath } }" style="text-decoration:none">
+            <div :class="[selected == 'followers' ? 'active' : '']"
+                class="selectorCard d-flex justify-content-center row">
+                <div class="d-flex justify-content-center align-middle selectorText">Followers</div>
+            </div>
+        </RouterLink>
+
+        <RouterLink class="row text" :to="{ name: 'profile', params: { id: returnPath } }" style="text-decoration:none">
+            <div :class="[selected == 'profile' ? 'active' : '']"
+                class="selectorCard d-flex justify-content-center row">
                 <div class="d-flex justify-content-center align-middle selectorText">Profile</div>
             </div>
         </RouterLink>
 
-        <RouterLink class="row text" to="/activity" style="text-decoration:none">
+        <RouterLink class="row text" :to="{ name: 'activity', params: { id: returnPath } }" style="text-decoration:none">
             <div :class="[selected == 'activity' ? 'active' : '']" class="selectorCard d-flex justify-content-center">
                 <div class="d-flex justify-content-center align-middle selectorText">Activity</div>
             </div>
@@ -23,6 +31,12 @@ export default {
             required: true
         },
     },
+    computed: {
+        returnPath() {
+            let path = this.$route.path.split("/")
+            return path[2]
+        }
+    }
 }
 
 

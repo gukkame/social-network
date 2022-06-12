@@ -95,13 +95,6 @@ func AuthUser(token string) bool {
 		DeleteSession(token)
 		return false
 	}
-	stmt, _ := db.DBC.Prepare(`UPDATE Sessions SET expiry_date = datetime('now','+1 years') WHERE token = ?`)
-	stmt.Exec(token)
-	defer stmt.Close()
-	err2 := DeleteOldSessions()
-	if err2 != nil {
-		return true
-	}
 	return true
 }
 

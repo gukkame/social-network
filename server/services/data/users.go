@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	db "real-time-forum/server/db"
 	ath "real-time-forum/server/services/authentication"
 	val "real-time-forum/server/services/validation"
@@ -19,39 +20,51 @@ type NewUserS struct {
 	Email     string
 	FirstName string
 	LastName  string
+	NickName  string
+	AboutMe   string
 	Age       string
 	Gender    string
 	Password  string
 }
 
 type ExistingUserS struct {
-	Id        int
-	Username  string
-	Password  string
-	Email     string
-	Age       string
-	Gender    string
-	FirstName string
-	LastName  string
-	Date      string
+	Id             int
+	Username       string
+	Password       string
+	Email          string
+	Age            string
+	Gender         string
+	FirstName      string
+	LastName       string
+	NickName       string
+	AboutMe        string
+	Avatar_image   string
+	Profile_status string
+	Date           string
 }
 
 type ProfileS struct {
-	Username  string
-	Email     string
-	Age       string
-	Gender    string
-	FirstName string
-	LastName  string
-	Token     string
+	Username       string
+	Email          string
+	Age            string
+	Gender         string
+	FirstName      string
+	LastName       string
+	NickName       string
+	AboutMe        string
+	Avatar_image   string
+	Date           string
+	Status         string
+	Profile_status string
 }
 
 type NeverReleasedData struct {
-	Id          int
-	Password    string
-	Date        string
-	Expiry_date string
-	User_id     int
+	Id             int
+	Password       string
+	Date           string
+	Expiry_date    string
+	User_id        int
+	Profile_status string
 }
 
 type LogInS struct {
@@ -78,27 +91,70 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		w.WriteHeader(http.StatusCreated)
-		reqBody, err := io.ReadAll(r.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		json.Unmarshal([]byte(reqBody), &newUser)
-		if val.ValidateUserData(newUser.Username, newUser.Email, newUser.FirstName, newUser.LastName, newUser.Age, newUser.Gender, newUser.Password) {
 
+		err := r.ParseMultipartForm(32 << 0) // maxMemory 32MB
+		if err != nil {
+			w.Write([]byte(`{"message": "Malicious user detected"}`))
+			return
+		}
+		newUser.Username = (r.Form["username"][0])
+		newUser.Email = (r.Form["email"][0])
+		newUser.FirstName = (r.Form["firstname"][0])
+		newUser.LastName = (r.Form["lastname"][0])
+		newUser.NickName = (r.Form["nickname"][0])
+		newUser.AboutMe = (r.Form["aboutme"][0])
+		newUser.Age = (r.Form["age"][0])
+		newUser.Gender = (r.Form["gender"][0])
+		newUser.Password = (r.Form["password"][0])
+
+		if val.ValidateUserData(newUser.Username, newUser.Email, newUser.FirstName, newUser.LastName, newUser.Age, newUser.Gender, newUser.Password, newUser.NickName, newUser.AboutMe) {
 			newUser.Password, err = HashPassword(newUser.Password)
 			if err != nil {
 				w.Write([]byte(`{"message": "Malicious user detected"}`))
 				return
 			}
-
-			stmt, err := db.DBC.Prepare(`INSERT INTO Users(username, password, email, age, gender, first_name, last_name, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, datetime("now"))`)
+			stmt, err := db.DBC.Prepare(`INSERT INTO Users(username, password, email, age, gender, first_name, last_name, nickname, about_me, avatar_image, profile_status, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))`)
 			if err != nil {
 				w.Write([]byte(`{"message": "Malicious user detected"}`))
 				return
 			}
+			// Saving img at
+			in, header, err := r.FormFile("img")
 
-			stmt.Exec(newUser.Username, newUser.Password, newUser.Email, newUser.Age, newUser.Gender, newUser.FirstName, newUser.LastName)
-			defer stmt.Close()
+			if header.Header.Get("Content-Type") == "image/gif" {
+				w.Write([]byte(`{"message": "Cant have gif as profile picture"}`))
+				return
+			}
+			if in == nil {
+				stmt.Exec(newUser.Username, newUser.Password, newUser.Email, newUser.Age, newUser.Gender, newUser.FirstName, newUser.LastName, newUser.NickName, newUser.AboutMe, "", "private")
+				defer stmt.Close()
+			} else {
+				if header.Size <= 1048576 {
+
+					if err != nil {
+						w.Write([]byte(`{"message": "Malicious user detected"}`))
+						return
+					}
+					defer in.Close()
+					s := strings.Split(header.Filename, ".")
+					out, err := os.OpenFile("./resources/profile/profile_img_"+newUser.Username+"."+s[len(s)-1], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+					if err != nil {
+						w.Write([]byte(`{"message": "Malicious user detected"}`))
+						return
+					}
+
+					defer out.Close()
+					io.Copy(out, in)
+
+					stmt.Exec(newUser.Username, newUser.Password, newUser.Email, newUser.Age, newUser.Gender, newUser.FirstName, newUser.LastName, newUser.NickName, newUser.AboutMe, "/server/resources/profile/"+header.Filename, "private")
+					defer stmt.Close()
+				} else {
+					w.Write([]byte(`{"message": "Image is too big!"}`))
+					return
+				}
+			}
+
 			w.Write([]byte(`{"message": "Data inserted"}`))
 		} else {
 			w.Write([]byte(`{"message": "Malicious user detected"}`))
@@ -158,6 +214,10 @@ func LogIn(w http.ResponseWriter, r *http.Request) {
 					&existingData.Gender,
 					&existingData.FirstName,
 					&existingData.LastName,
+					&existingData.NickName,
+					&existingData.AboutMe,
+					&existingData.Avatar_image,
+					&existingData.Profile_status,
 					&existingData.Date,
 				)
 				if err != nil {
@@ -222,6 +282,9 @@ func Username(w http.ResponseWriter, r *http.Request) {
 		json.Unmarshal([]byte(reqBody), &oneUsername)
 
 		row, err := db.DBC.Query("SELECT username FROM Users WHERE username = ?", oneUsername.Username)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		defer row.Close()
 		if row.Next() {
@@ -252,7 +315,9 @@ func Email(w http.ResponseWriter, r *http.Request) {
 		json.Unmarshal([]byte(reqBody), &oneEmail)
 
 		row, err := db.DBC.Query("SELECT email FROM Users WHERE email = ?", oneEmail.Email)
-
+		if err != nil {
+			log.Fatal(err)
+		}
 		defer row.Close()
 		//IF IT EXISTS
 		if row.Next() {

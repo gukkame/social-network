@@ -1,4 +1,5 @@
 -- +migrate Up
+
 CREATE TABLE IF NOT EXISTS Group_users(
     user_id INTEGER NOT NULL,
     group_id INTEGER NOT NULL,
@@ -7,4 +8,5 @@ CREATE TABLE IF NOT EXISTS Group_users(
 );
 
 -- +migrate Down
+
 DROP TABLE Group_users;

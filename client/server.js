@@ -18,4 +18,4 @@ app.get('/', (req, res) => {
 });
 
 //Express server 
-app.listen(8090, () => console.log('server started'));
+app.listen(8090, () => console.log('Frontend Server running at port http://localhost:8090/'));
