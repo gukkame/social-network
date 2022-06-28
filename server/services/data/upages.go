@@ -227,7 +227,7 @@ func ChangeProfileStatus(w http.ResponseWriter, r *http.Request) {
 					w.Write([]byte(`{"message": "Malicious user detected"}`))
 					return
 				}
-				stmt3.Exec("following","requested", browsedId.Id)
+				stmt3.Exec("following", "requested", browsedId.Id)
 				defer stmt3.Close()
 
 			} else {
@@ -274,6 +274,7 @@ func getProfile(browsed string) (ProfileS, error) {
 			return ProfileS{}, err
 		}
 	}
+
 	return neededData, err
 }
 

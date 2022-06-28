@@ -21,17 +21,17 @@ func main() {
 	http.HandleFunc("/available/username", ds.Username)
 	http.HandleFunc("/available/email", ds.Email)
 	http.HandleFunc("/authedchat", ath.AuthChat)
-
 	//PROFILE
 	http.HandleFunc("/profile", ds.Profile)
 	http.HandleFunc("/changeprofile", ds.ChangeProfileStatus)
 	http.HandleFunc("/activity", ds.Activity)
+	http.HandleFunc("/followers", ds.Followers)
 
 	//GROUPS
 	http.HandleFunc("/groups", ds.GetGroups)
 	http.HandleFunc("/creategroup", ds.NewGroup)
 
-	//POSTS & COMMENTS &
+	//POSTS & COMMENTS
 	http.HandleFunc("/createpost", ds.CreatePost)
 	http.HandleFunc("/editpost", ds.EditPost)
 	http.HandleFunc("/deletepost", ds.DeletePost)
@@ -50,6 +50,8 @@ func main() {
 	http.HandleFunc("/follow", ds.PerformFollow)
 	http.HandleFunc("/checkfollow", ds.CheckFollowRequest)
 	http.HandleFunc("/cancelrequest", ds.CancelFollowRequest)
+	http.HandleFunc("/removefollower", ds.RemoveFollower)
+	http.HandleFunc("/acceptfollower", ds.AcceptFollower)
 
 	//CHAT SYSTEM
 	http.HandleFunc("/WSconnect", dsm.InitiateChat)
@@ -59,6 +61,10 @@ func main() {
 
 	//CLOSING DATABASE CONNECTION WHEN MAIN FUNCTION GETS CLOSED AKA CTRL + C
 	defer db.DBC.Close()
+
+	//IMAGES -> ./resources
+	fileServer := http.FileServer(http.Dir("./resources"))
+	http.Handle("/resources/", http.StripPrefix("/resources", fileServer))
 
 	//GOLANG SERVER
 	fmt.Printf("API Server running at port http://localhost:8080/\n")

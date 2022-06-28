@@ -4,7 +4,11 @@
       <img class="formImg" src="../assets/images/logo.svg" />
     </div>
     <div class="form">
-      <Form @submit="signup" v-slot="{ errors }" :validation-schema="errorSchema">
+      <Form
+        @submit="signup"
+        v-slot="{ errors }"
+        :validation-schema="errorSchema"
+      >
         <div class="container">
           <div class="row" style="height: 220px">
             <div class="col d-flex justify-content-center align-items-center">
@@ -42,8 +46,13 @@
                 Username
                 <i class="formstar">*</i>
               </div>
-              <Field class="form-input" :class="{ forminputerror: errors.username }" as="input" name="username"
-                placeholder="Example101" />
+              <Field
+                class="form-input"
+                :class="{ forminputerror: errors.username }"
+                as="input"
+                name="username"
+                placeholder="Example101"
+              />
               <br />
               <span class="formErrors">{{ errors.username }}</span>
             </div>
@@ -52,8 +61,13 @@
                 Email
                 <i class="formstar">*</i>
               </div>
-              <Field class="form-input" :class="{ forminputerror: errors.email }" as="input" name="email"
-                placeholder="example@gmail.com" />
+              <Field
+                class="form-input"
+                :class="{ forminputerror: errors.email }"
+                as="input"
+                name="email"
+                placeholder="example@gmail.com"
+              />
               <br />
               <span class="formErrors">{{ errors.email }}</span>
             </div>
@@ -65,8 +79,13 @@
                 First name
                 <i class="formstar">*</i>
               </div>
-              <Field class="form-input" :class="{ forminputerror: errors.firstname }" as="input" name="firstname"
-                placeholder="*" />
+              <Field
+                class="form-input"
+                :class="{ forminputerror: errors.firstname }"
+                as="input"
+                name="firstname"
+                placeholder="*"
+              />
               <br />
               <span class="formErrors">{{ errors.firstname }}</span>
             </div>
@@ -76,8 +95,13 @@
                 Last name
                 <i class="formstar">*</i>
               </div>
-              <Field class="form-input" :class="{ forminputerror: errors.lastname }" as="input" name="lastname"
-                placeholder="*" />
+              <Field
+                class="form-input"
+                :class="{ forminputerror: errors.lastname }"
+                as="input"
+                name="lastname"
+                placeholder="*"
+              />
               <br />
               <span class="formErrors">{{ errors.lastname }}</span>
             </div>
@@ -107,16 +131,28 @@
                 Age
                 <i class="formstar">*</i>
               </div>
-              <Field class="form-input" :class="{ forminputerror: errors.age }" type="date" name="age"
-                data-date-inline-picker="true" />
+              <Field
+                class="form-input"
+                :class="{ forminputerror: errors.age }"
+                type="date"
+                name="age"
+                data-date-inline-picker="true"
+              />
 
               <br />
               <span class="formErrors">{{ errors.age }}</span>
             </div>
             <div class="col">
               <div>Gender</div>
-              <Field class="form-input" v-model="selected" :class="{ forminputerror: errors.gender }" as="select"
-                data-date-inline-picker="true" name="gender" id="age">
+              <Field
+                class="form-input"
+                v-model="selected"
+                :class="{ forminputerror: errors.gender }"
+                as="select"
+                data-date-inline-picker="true"
+                name="gender"
+                id="age"
+              >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
@@ -349,10 +385,13 @@ export default {
       formData.append("email", values.email);
       formData.append("firstname", values.firstname);
       formData.append("lastname", values.lastname);
+      formData.append("nickname", values.nickname);
+      formData.append("aboutme", values.aboutme);
       formData.append("age", values.age);
       formData.append("gender", values.gender);
       formData.append("password", values.password);
-
+      formData.append("img", this.file);
+    
       axios
         .post("http://localhost:8080/signup", formData)
         .then((res) => {
@@ -363,9 +402,13 @@ export default {
             return (this.errormsg = res.data.message);
           }
           this.errormsg = "";
-          // router.push("/login");
+          router.push("/login");
         })
-        .catch((error) => { });
+        .catch((error) => {});
+    },
+
+    deleteProf() {
+      this.file = null;
     },
 
     deleteProf() {

@@ -11,6 +11,8 @@ import (
 	ath "real-time-forum/server/services/authentication"
 	val "real-time-forum/server/services/validation"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type GroupUserIds struct {
@@ -18,12 +20,12 @@ type GroupUserIds struct {
 	groupID int
 }
 type GroupInfo struct {
-	groupID    int
-	title      string
-	content    string
-	image      string
-	created_at string
-	creator_id int
+	groupID      int
+	title        string
+	content      string
+	image        string
+	created_at   string
+	creator_id   int
 	creator_name string
 }
 
@@ -210,10 +212,11 @@ func NewGroup(w http.ResponseWriter, req *http.Request) {
 						return
 					}
 					defer in.Close()
-
+					id := uuid.New()
+					img_id := id.String()
 					s := strings.Split(header.Filename, ".")
-					out, err := os.OpenFile("./resources/group/group_img_"+title+"."+s[len(s)-1], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-					fmt.Println("Path to image", "./resources/group/"+title+"."+s[len(s)-1])
+					out, err := os.OpenFile("./resources/group/"+img_id+"."+s[len(s)-1], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+					fmt.Println("Path to image", "./resources/group/"+img_id+"."+s[len(s)-1])
 					if err != nil {
 						fmt.Println("ERORR#", err)
 						return
@@ -222,7 +225,7 @@ func NewGroup(w http.ResponseWriter, req *http.Request) {
 					defer out.Close()
 					io.Copy(out, in)
 
-					stmt.Exec(title, content, "/server/resources/group/"+title+"."+s[len(s)-1], user_id)
+					stmt.Exec(title, content, "/server/resources/group/"+img_id+"."+s[len(s)-1], user_id)
 					defer stmt.Close()
 				} else {
 					w.Write([]byte(`{"message": "Image is too big!"}`))

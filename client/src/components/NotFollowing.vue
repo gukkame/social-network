@@ -103,7 +103,7 @@ export default {
         performFollow() {
             let token = document.cookie
             if (token.length == 0) {
-                return router.go("/login")
+                return router.push("/login")
             }
             let correctToken = token.split(":")
             let config = {
@@ -136,7 +136,7 @@ export default {
         performUnrequest() {
             let token = document.cookie
             if (token.length == 0) {
-                return router.go("/login")
+                return router.push("/login")
             }
             let correctToken = token.split(":")
             let config = {

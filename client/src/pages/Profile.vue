@@ -22,9 +22,10 @@ import ChangeProfileComp from "../components/ChangeProfile.vue"
                             data-bs-target="#changeProfile"></i>
                     </div>
                 </div>
-                <img class="profileimage col" src="../assets/images/profile.svg" />
-                <div class="d-flex justify-content-center profilename">{{ info.FirstName }} {{ info.LastName }}
-                    ({{ info.NickName }})</div>
+                <img v-if="info.Avatar_image == ``" class="profileimage col" src="../assets/images/profile.svg" />
+                <div v-else class="bubble" style="margin-top: 20px;"></div>
+                <div class="d-flex justify-content-center profilename">{{ info.Username }}
+                    <a style="margin-left: 5px; color: rgb(165, 159, 159);;" v-if="info.NickName.length != 0">({{ info.NickName }})</a></div>
                 <div class="d-flex">
                     <div class="d-flex justify-content-center col">
                         <button v-if="info.Status == `notfollowing` && LoggedIn" @click="performFollow"
@@ -53,8 +54,8 @@ import ChangeProfileComp from "../components/ChangeProfile.vue"
             <div class="profileinfo d-flex justify-content-center row">
                 <div class="sect row align-items-center">
                     <div class="col-1"></div>
-                    <div class="col d-flex pro-1">Username</div>
-                    <div class="col d-flex justify-content-start pro-2">{{ info.Username }}</div>
+                    <div class="col d-flex pro-1">Name</div>
+                    <div class="col d-flex justify-content-start pro-2">{{ info.FirstName }} {{ info.LastName }}</div>
                     <div class="lined"></div>
                 </div>
                 <div v-if="info.Status == `owner`" class="sect row align-items-center">
@@ -114,7 +115,7 @@ export default {
                 LastName: "",
                 NickName: "",
                 AboutMe: "",
-                Avatar_image: "",
+                Avatar_image: null,
                 Date: "",
                 Status: "",
                 Profile_status: "",
@@ -128,7 +129,7 @@ export default {
     created() {
         // watch the params of the route to fetch the data again
         this.$watch(
-            () => this.$route.path,
+            () => this.$route.params.id,
             () => {
                 this.fetchProfile()
             },
@@ -140,6 +141,8 @@ export default {
 
     methods: {
         async fetchProfile() {
+            this.notExist = false
+            this.notFollowing = false
             let token = document.cookie
             let correctToken = token.split(":")
             let config = {
@@ -165,6 +168,8 @@ export default {
                         }
                         if (res.data.Status == "owner") {
                             this.info = res.data
+                            let bubble = document.querySelector(".bubble")
+                            bubble.style.backgroundImage = `url('http://localhost:8080${this.info.Avatar_image}')`
                             return
                         }
 
@@ -175,7 +180,8 @@ export default {
                         }
 
                         this.info = res.data
-
+                        let bubble = document.querySelector(".bubble")
+                        bubble.style.backgroundImage = `url('http://localhost:8080${this.info.Avatar_image}')`
                     })
                     .catch((error) => { });
             })

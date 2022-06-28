@@ -12,6 +12,7 @@ import (
 	val "real-time-forum/server/services/validation"
 	"strings"
 
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -120,15 +121,14 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			}
 			// Saving img at
 			in, header, err := r.FormFile("img")
-
-			if header.Header.Get("Content-Type") == "image/gif" {
-				w.Write([]byte(`{"message": "Cant have gif as profile picture"}`))
-				return
-			}
 			if in == nil {
 				stmt.Exec(newUser.Username, newUser.Password, newUser.Email, newUser.Age, newUser.Gender, newUser.FirstName, newUser.LastName, newUser.NickName, newUser.AboutMe, "", "private")
 				defer stmt.Close()
 			} else {
+				if header.Header.Get("Content-Type") == "image/gif" {
+					w.Write([]byte(`{"message": "Cant have gif as profile picture"}`))
+					return
+				}
 				if header.Size <= 1048576 {
 
 					if err != nil {
@@ -136,9 +136,10 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					defer in.Close()
+					id := uuid.New()
+					img_id := id.String()
 					s := strings.Split(header.Filename, ".")
-					out, err := os.OpenFile("./resources/profile/profile_img_"+newUser.Username+"."+s[len(s)-1], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
+					out, err := os.OpenFile("./resources/profile/"+img_id+"."+s[len(s)-1], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 					if err != nil {
 						w.Write([]byte(`{"message": "Malicious user detected"}`))
 						return
@@ -147,7 +148,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 					defer out.Close()
 					io.Copy(out, in)
 
-					stmt.Exec(newUser.Username, newUser.Password, newUser.Email, newUser.Age, newUser.Gender, newUser.FirstName, newUser.LastName, newUser.NickName, newUser.AboutMe, "/server/resources/profile/"+header.Filename, "private")
+					stmt.Exec(newUser.Username, newUser.Password, newUser.Email, newUser.Age, newUser.Gender, newUser.FirstName, newUser.LastName, newUser.NickName, newUser.AboutMe, "/resources/profile/"+img_id+"."+s[len(s)-1], "private")
 					defer stmt.Close()
 				} else {
 					w.Write([]byte(`{"message": "Image is too big!"}`))
