@@ -139,6 +139,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 					id := uuid.New()
 					img_id := id.String()
 					s := strings.Split(header.Filename, ".")
+					
 					out, err := os.OpenFile("./resources/profile/"+img_id+"."+s[len(s)-1], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 					if err != nil {
 						w.Write([]byte(`{"message": "Malicious user detected"}`))

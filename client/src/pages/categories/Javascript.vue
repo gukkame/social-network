@@ -1,7 +1,7 @@
 <script setup>
 import CategoryComp from "../../components/Categories.vue"
 import SingePostPreviewComp from "../../components/SinglePostPreview.vue"
-import CreatePostComp from "../../components/CreatePost.vue"
+import CreatePostComp from "../../components/modals/CreatePost.vue"
 </script>
 
 <template>

@@ -10,6 +10,14 @@
                 </RouterLink>
 
             </li>
+            <li>
+                <RouterLink to="/groups" class="href">
+                    <i class="fa fa-solid fa-users fa-2x"></i>
+                    <span class="nav-text">
+                        Groups
+                    </span>
+                </RouterLink>
+            </li>
             <li v-if="LoggedIn">
                 <RouterLink :to="{ name: 'profile', params: { id: returnPath } }" class="href">
                     <i class="fa fa-solid fa-user fa-2x"></i>
@@ -38,7 +46,7 @@
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
-import router from "../router";
+import router from "../../router";
 export default {
 
     name: 'Header',

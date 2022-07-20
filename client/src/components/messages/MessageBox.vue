@@ -1,5 +1,5 @@
 <script setup>
-import UserSenderComp from "./MessageTypes/UserSender.vue"
+import UserSenderComp from "./UserSender.vue"
 </script>
 
 <template>

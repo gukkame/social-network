@@ -11,7 +11,7 @@
         </div>
     </div>
     <div v-else class="d-flex flex-row message">
-        <img class="receiverwindowImg" src="../../../assets/images/profile.svg" />
+        <img class="receiverwindowImg" src="../../assets/images/profile.svg" />
         <div class="d-flex flex-column" style="overflow:hidden;">
             <div class="receiverMSG" @mouseover="hover = true" @mouseleave="hover = false">
                 {{ data.Message }}

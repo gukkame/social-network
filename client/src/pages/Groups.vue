@@ -1,82 +1,133 @@
+<script setup>
+import SingleGroupPreviewComp from "../components/SingleGroupPreview.vue"
+import CreateGroupComp from "../components/modals/CreateGroup.vue"
+</script>
+
 <template>
-  <main>
-    <Form @submit="newGroup">
- 
-        <div>Title</div>
-        <Field class="form-input" as="input" name="title" />
-        <input name="title" v-model="title" type="text" />
-
-        <!-- <span class="formErrors">{{ errors.title }}</span> -->
-        <div>Description</div>
-        <Field class="form-input" as="input" name="content" />
-        <input name="content" v-model="content" type="text" />
-        <br />
-        <!-- <span class="formErrors">{{ errors.content }}</span> -->
-
-        <button class="">Create group!</button>
-  
-
-      <h2>Single File</h2>
-      <hr />
-      <!-- <label
-        >File
-        <input
-          type="file"
-          name="img"
-          accept="image/x-png,image/gif,image/jpeg"
-          @change="handleFileUpload($event)"
-        />
-      </label> -->
-      <br
-    /></Form>
-  </main>
+    <div v-if="LoggedIn" class="catepage container col">
+        <div class="catetitle"><i class="catetitleicon bi bi-server"></i>My groups ({{ checkGroups(mygroups) }})</div>
+        <div class="d-flex justify-content-center">
+            <div v-if="checkGroups(mygroups) == 0"
+                class="groupsHeader d-flex justify-content-center col align-items-center overflow-auto">
+                <div class="noAvailable d-flex justify-content-center">
+                    You are not part of any group!
+                </div>
+            </div>
+            <div v-else class="groupsHeader d-flex col align-items-center overflow-auto">
+                <div v-for="data in mygroups">
+                    <SingleGroupPreviewComp :data="data" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="groupPage container col">
+        <div class="d-flex">
+            <div class="catetitle col">
+                <i class="catetitleicon bi bi-share"></i>Available groups ({{ checkGroups(groups) }})
+            </div>
+            <div v-if="LoggedIn">
+                <button data-bs-toggle="modal" data-bs-target="#createGroup" class="createGroup col">Create a
+                    group</button>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="mainheader content col">
+                <div class="noAvailable d-flex justify-content-center" v-if="checkGroups(groups) == 0">
+                    No groups available
+                </div>
+                <div v-else>
+                    <div class="d-flex flex-wrap contentinside justify-content-center col">
+                        <div v-for="data in groups">
+                            <SingleGroupPreviewComp :data="data" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <CreateGroupComp />
 </template>
 
-<script>
+<script >
+import axios from "axios";
+import { delay } from "../common-js/time.js";
 export default {
-  data() {
-    return {
-      errorMessage: "",
-      allGroups: [],
-      title: "",
-      content: "",
-    };
-  },
-  methods: {
-    handleFileUpload(event) {
-      this.file = event.target.files[0];
+    data() {
+        return {
+            mygroups: [],
+            groups: [],
+        }
     },
-    newGroup(values) {
-      let token = document.cookie;
-      if (token.length === 0) {
-        // return router.push("/");
-      }
-      let correctToken = token.split(":");
 
-      //formdata title, content, img
-      let formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("content", values.content);
-      formData.append("token", correctToken);
-      formData.append("image", this.file);
-      console.log(values);
-      axios
-        .post("http://localhost:8080/creategroup", formData)
-        .then((res) => {
-          if (res.data.message === "Malicious user detected") {
-            return (this.errormsg = res.data.message);
-          }
-          if (res.data.message === "Image is too big!") {
-            return (this.errormsg = res.data.message);
-          }
-          console.log(res.data.message);
-          this.errormsg = "";
-          // router.push("/group_page");
-        })
-        .catch((error) => {
-          console.log("errorrrrs");
-        });
+    props: {
+        LoggedIn: {
+            type: Boolean,
+            required: true
+        },
     },
-  },
-};
+
+    created() {
+        this.$watch(
+            () => this.$route.path,
+            () => {
+                this.fetchGroups()
+            },
+            { immediate: true }
+        )
+    },
+
+    
+
+    methods: {
+        allgroups() {
+
+            this.mygroups = this.result.filter((ismember) => ismember.Group_member == 1);
+            this.groups = this.result.filter((ismember) => ismember.Group_member == 0);
+        },
+        async fetchGroups() {
+            // console.log(this.json)
+            let data = {
+
+            }
+
+            let token = document.cookie
+            let correctToken = token.split(":")
+
+            let config = {
+                headers: {
+                    header1: correctToken[0],
+                }
+            }
+
+
+            await delay(200).then(() => {
+                axios.post("http://localhost:8080/groups", data, config)
+                    .then((res) => {
+                        console.log(res.data);
+                        this.result = res.data
+                        this.allgroups()
+                        if (res.data.message === "Post request failed") {
+                            return router.go(-1)
+                        }
+                    })
+                    .catch((error) => { });
+            })
+        },
+
+        checkGroups(arg) {
+            if (arg == null) {
+                return 0
+            } else {
+                return arg.length
+            }
+        }
+    },
+
+
+}
 </script>
+
+
+<style>
+@import "../assets/css/base.css";
+</style>

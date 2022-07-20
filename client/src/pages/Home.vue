@@ -190,6 +190,7 @@ export default {
                         if (Cookie.Id.length != 0 && Cookie.Username.length != 0) {
                             createCookie(Cookie.Id, Cookie.Username)
                         }
+                        console.log(this.go)
                     })
                     .catch((error) => { });
             })

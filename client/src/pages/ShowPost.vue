@@ -1,8 +1,8 @@
 <script setup>
 import CommentComp from "../components/Comment.vue"
 import PageNotFoundComp from "./PageNotFound.vue"
-import EditPostComp from "../components/EditPost.vue"
-import DeletePostComp from "../components/DeletePost.vue"
+import EditPostComp from "../components/modals/EditPost.vue"
+import DeletePostComp from "../components/modals/DeletePost.vue"
 </script>
 
 <template>

@@ -365,7 +365,6 @@ export default {
         ).toString();
       values.age = getAge(values.age);
       let formData = new FormData();
-      console.log(values.nickname);
       if (values.nickname == undefined) {
         formData.append("nickname", "");
       } else {
@@ -405,10 +404,6 @@ export default {
           router.push("/login");
         })
         .catch((error) => {});
-    },
-
-    deleteProf() {
-      this.file = null;
     },
 
     deleteProf() {

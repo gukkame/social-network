@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="header-item-logo">
-      <img alt="kood/ logo" class="logo" src="../assets/images/logo.svg" />
+      <img alt="kood/ logo" class="logo" src="../../assets/images/logo.svg" />
     </div>
 
     <div class="header-item-nav">

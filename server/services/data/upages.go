@@ -274,7 +274,6 @@ func getProfile(browsed string) (ProfileS, error) {
 			return ProfileS{}, err
 		}
 	}
-
 	return neededData, err
 }
 

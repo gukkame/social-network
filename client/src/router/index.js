@@ -39,7 +39,19 @@ const router = createRouter({
      
       component: () => import('../pages/Following.vue')
     },
-
+    //GROUPS
+    {
+      path: '/groups',
+      name: 'groups',
+     
+      component: () => import('../pages/Groups.vue')
+    },
+    {
+      path: '/groups/:id',
+      name: 'group',
+     
+      component: () => import('../pages/SingleGroup.vue')
+    },
     //CATEGORIES
     {
       path: '/Go',

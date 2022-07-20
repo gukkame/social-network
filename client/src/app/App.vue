@@ -1,10 +1,10 @@
 <script setup>
 import { RouterView } from "vue-router";
-import HeaderComp from "../components/Header.vue";
-import SidebarComp from "../components/Sidebar.vue"
-import FooterComp from "../components/Footer.vue"
-import ScrollTopComp from "../components/ScrollTop.vue"
-import ChatComp from "../components/Messages/ChatIcon.vue"
+import HeaderComp from "../components/page_parts/Header.vue";
+import SidebarComp from "../components/page_parts/Sidebar.vue"
+import FooterComp from "../components/page_parts/Footer.vue"
+import ScrollTopComp from "../components/page_parts/ScrollTop.vue"
+import ChatComp from "../components/messages/ChatIcon.vue"
 </script>
 
 <template>

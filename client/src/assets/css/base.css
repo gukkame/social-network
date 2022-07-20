@@ -153,7 +153,6 @@ body {
 .body-app-main {
   padding: 55px 40px 40px 40px;
   margin: 70px 70px 110px 70px;
-  background-color: rgb(253, 252, 252);
   margin-left: 140px;
   width: 100%;
   flex-grow: 1;
@@ -1644,6 +1643,18 @@ nav.main-menu li.active>a,
   color: #FF9D5A;
 }
 
+/* ----------------------------CREATE GROUP MODAL---------------------------- */
+
+.createGroupModal {
+  height: 600px;
+  padding: 25px;
+  background-color: rgb(253, 252, 252);
+  border: solid 1px rgb(165, 159, 159);
+  border-radius: 6px;
+}
+
+
+
 /* ----------------------------ERROR PAGE---------------------------- */
 
 .errorpage {
@@ -2230,6 +2241,7 @@ nav.main-menu li.active>a,
 }
 
 .commentDislike {
+
   font-size: 30px;
   transition: 0.25s;
 }
@@ -2246,6 +2258,89 @@ nav.main-menu li.active>a,
   margin-left: 7px;
 }
 
+/* ----------------------------GROUPS---------------------------- */
+
+.groupPage {
+  /*   margin-top: 90px; */
+  width: 100%;
+  height: 100%;
+  margin-left: 50px;
+}
+
+.groupsHeader {
+  border-top: solid 1px rgb(165, 159, 159);
+  border-radius: 0px 0px 4px 4px;
+  width: 900px;
+  height: 280px;
+  margin-bottom: 20px;
+}
+
+@media only screen and (max-width : 1280px) and (max-height : 720px) {
+
+  .groupPage {
+    /*   margin-top: 90px; */
+    width: 100%;
+    height: 100%;
+    margin-left: -18px;
+  }
+}
+
+.createGroup {
+  margin-top: 5px;
+  background-color: rgb(253, 252, 252);
+  font-size: 20px;
+  border: solid 1px rgb(165, 159, 159);
+  border-radius: 4px;
+  transition: 0.3s;
+  width: 155px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.createGroup:hover {
+  transform: scale(1.13);
+  transition: 0.3s;
+  background-color: #FF9D5A;
+  color: rgb(253, 252, 252);
+  border: solid 1px rgb(253, 252, 252);
+}
+
+/* ----------------------------SINGLE GROUP PREVIEW---------------------------- */
+.singleGroup {
+  min-width: 600px;
+  max-width: 600px;
+  min-height: 240px;
+  max-height: 240px;
+  /* background-color: red; */
+  border-radius: 5px;
+  border: solid 1px rgb(165, 159, 159);
+  transition: 0.3s;
+  margin: 5px 5px 5px 5px;
+  display: inline-block;
+  box-sizing: unset;
+}
+
+.singleGroup a {
+  text-decoration: none;
+  color: #2E343D;
+}
+
+.followerLink:hover {
+  text-decoration-line: underline;
+}
+
+.singleGroup:hover {
+  transform: scale(1.03);
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.singleGroupCol {
+  height: 240px;
+}
 
 /* ----------------------------MEDIA QUERIES---------------------------- */
 
