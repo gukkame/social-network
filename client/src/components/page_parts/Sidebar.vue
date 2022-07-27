@@ -27,6 +27,14 @@
                 </RouterLink>
 
             </li>
+            <li v-if="LoggedIn">
+                <RouterLink :to="{ name: 'messenger' }" class="href">
+                    <i class="bi bi-chat-dots-fill fa"></i>
+                    <span class="nav-text">
+                        Messenger
+                    </span>
+                </RouterLink>
+            </li>
         </ul>
 
         <ul class="logout" v-if="LoggedIn">

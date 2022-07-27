@@ -49,9 +49,41 @@ const router = createRouter({
     {
       path: '/groups/:id',
       name: 'group',
+      redirect: {name: 'groupposts'},
      
-      component: () => import('../pages/SingleGroup.vue')
+      component: () => import('../pages/group/SingleGroup.vue'),
+      children: [
+        {
+          path: 'posts',
+          name: 'groupposts',
+          component: () => import('../pages/group/GroupPosts.vue'),
+        },
+        {
+          path: 'events',
+          name: 'events',
+          component: () => import('../pages/group/GroupEvents.vue'),
+        },
+        {
+          path: 'admin',
+          name: 'admin',
+          component: () => import('../pages/group/GroupAdmin.vue'),
+        },
+      ],
     },
+    {
+      path: '/groups/:id/posts/:postid',
+      name: 'onegrouppost',
+      component: () => import('../pages/group/ShowGroupPost.vue')
+    },
+
+    {
+      path: "/messenger",
+      name: "messenger",
+      component: () => import("../pages/Messenger.vue")
+    },
+    
+
+
     //CATEGORIES
     {
       path: '/Go',

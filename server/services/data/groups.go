@@ -1,4 +1,4 @@
-package data_services
+package data_services 
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	db "real-time-forum/server/db"
 	ath "real-time-forum/server/services/authentication"
 	val "real-time-forum/server/services/validation"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -18,26 +19,25 @@ import (
 type GroupUserIds struct {
 	userID  int
 	groupID int
+	userStatus string
 }
-type group_info struct {
-	GroupID      int
-	Title        string
-	Content      string
-	Image        string
-	Created_at   string
-	Creator_id   int
-	Creator_name string
-	Member_count int
-	Group_member int
+
+type Group struct {
+	Group_id     int    `json:"GroupID"`
+	Title        string `json:"Title"`
+	Content      string `json:"Content"`
+	Image        string `json:"Image"`
+	Created_at   string `json:"Created_at"`
+	Creator_id   int    `json:"Creator_id"`
+	Creator_name string `json:"Creator_name"`
+	Member_count int    `json:"Member_count"`
+	Group_member int    `json:"Group_member"`
+	User_status  string `json:"User_status"`
 }
 
 //Get all groups
 func GetGroups(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
 	switch r.Method {
 	case "POST":
 		w.WriteHeader(http.StatusCreated)
@@ -73,7 +73,7 @@ func GetGroups(w http.ResponseWriter, r *http.Request) {
 		var groupUserIds []GroupUserIds
 		for rows.Next() {
 			var ids GroupUserIds
-			err2 := rows.Scan(&ids.userID, &ids.groupID)
+			err2 := rows.Scan(&ids.userID, &ids.groupID, &ids.userStatus)
 			if err2 != nil {
 				w.Write([]byte(`{"message": "Post request failed"}`))
 				return
@@ -96,21 +96,21 @@ func GetGroups(w http.ResponseWriter, r *http.Request) {
 		}
 		defer rows2.Close()
 
-		var groupsInfo []group_info
+		var groupsInfo []Group
 		for rows2.Next() {
-			var groupInfo group_info
-			err2 := rows2.Scan(&groupInfo.GroupID, &groupInfo.Title, &groupInfo.Content, &groupInfo.Image, &groupInfo.Created_at, &groupInfo.Creator_id, &groupInfo.Creator_name)
+			var groupInfo Group
+			err2 := rows2.Scan(&groupInfo.Group_id, &groupInfo.Title, &groupInfo.Content, &groupInfo.Image, &groupInfo.Created_at, &groupInfo.Creator_id, &groupInfo.Creator_name)
 			if err2 != nil {
 				w.Write([]byte(`{"message": "Post request failed"}`))
 				return
 			}
 			for group_id, membercount := range memberCount {
-				if groupInfo.GroupID == group_id {
+				if groupInfo.Group_id == group_id {
 					groupInfo.Member_count = membercount
 				}
 			}
 			for _, v := range groupUserIds {
-				if v.userID == user_id && v.groupID == groupInfo.GroupID {
+				if v.userID == user_id && v.groupID == groupInfo.Group_id {
 					groupInfo.Group_member = 1
 				}
 				if groupInfo.Group_member != 1 {
@@ -141,12 +141,6 @@ func printUniqueValue(arr []int) map[int]int {
 }
 
 func NewGroup(w http.ResponseWriter, req *http.Request) {
-
-	SetupCORS(&w, req)
-	if (*req).Method == "OPTIONS" {
-		return
-	}
-
 	switch req.Method {
 	case "POST":
 
@@ -243,12 +237,12 @@ func NewGroup(w http.ResponseWriter, req *http.Request) {
 					return
 				}
 			}
-			stmt1, err := db.DBC.Prepare(`INSERT INTO Group_users(user_id, group_id) VALUES(?, ?)`)
+			stmt1, err := db.DBC.Prepare(`INSERT INTO Group_users(user_id, group_id, status) VALUES(?, ?, ?)`)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			stmt1.Exec(user_id, group_id)
+			stmt1.Exec(user_id, group_id, "Owner")
 
 			//Send data to front
 			var jsonData []byte
@@ -262,5 +256,15 @@ func NewGroup(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(`{"msg": "Can't find method requested"}`))
 	}
+}
 
+func (group Group) IsUserOwner(userId string) (bool, error) {
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		return false, err
+	}
+	if userIdInt == group.Creator_id {
+		return true, nil
+	}
+	return false, nil
 }

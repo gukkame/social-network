@@ -3,7 +3,10 @@
         <div class="activityComment">
             <div class="commenth d-flex flex-row">
                 <div>
-                    <img class="commentProfileImg col" src="../assets/images/profile.svg" />
+                    <div v-if="data.USer_Image != ``" class="bubble4 col"
+                        style="margin-top: 7px; margin-left: 2px;">
+                    </div>
+                    <img v-else class="commentProfileImg col" src="../assets/images/profile.svg" />
                 </div>
                 <div class="col posthDetails">
                     <div class="col commentUser">{{ data.Username }}</div>
@@ -45,8 +48,16 @@ export default {
         }
     },
 
+    mounted() {
+        let bubble = this.$el.querySelector(".bubble4")
+        if (bubble == null) {
+            return
+        }
+        bubble.style.backgroundImage = `url('http://localhost:8080${this.data.User_Image}')`
+    },
+
     computed: {
-       humanReadableTime() {
+        humanReadableTime() {
             return timeago(new Date(Date.now() - new Date(Date.parse(this.data.Created_at))))
         },
 
@@ -106,7 +117,7 @@ export default {
             return true
         },
 
-                NoLikeActive() {
+        NoLikeActive() {
             let token = document.cookie
             let correctToken = token.split(":")
             if (this.data.Likes == null) {

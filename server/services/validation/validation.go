@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -104,45 +103,36 @@ func ValidAboutMe(content string) bool {
 
 func ValidateUserData(username string, email string, firstname string, lastname string, age string, gender string, password string, nickname string, about_me string) bool {
 	if !ValidUsername(username) {
-		fmt.Println("false 1")
 		return false
 	}
 
 	if !ValidEmail(email) {
-		fmt.Println("false 2")
 		return false
 	}
 
 	if !ValidNames(firstname) {
-		fmt.Println("false 3")
 		return false
 	}
 
 	if !ValidNames(lastname) {
-		fmt.Println("false 4")
 		return false
 	}
 
 	if !ValidAge(age) {
-		fmt.Println("false 5")
 		return false
 	}
 
 	if !ValidGender(gender) {
-		fmt.Println("false 6")
 		return false
 	}
 
 	if !ValidPassword(password) {
-		fmt.Println("false 7")
 		return false
 	}
 	if !ValidNickName(nickname) {
-		fmt.Println("false 8")
 		return false
 	}
 	if !ValidAboutMe(about_me) {
-		fmt.Println("false 9")
 		return false
 	}
 	return true

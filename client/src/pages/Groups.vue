@@ -103,7 +103,6 @@ export default {
             await delay(200).then(() => {
                 axios.post("http://localhost:8080/groups", data, config)
                     .then((res) => {
-                        console.log(res.data);
                         this.result = res.data
                         this.allgroups()
                         if (res.data.message === "Post request failed") {

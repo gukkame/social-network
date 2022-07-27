@@ -8,6 +8,7 @@ import (
 	"net/http"
 	db "real-time-forum/server/db"
 	ath "real-time-forum/server/services/authentication"
+	mw "real-time-forum/server/middleware"
 	"strings"
 )
 
@@ -25,10 +26,6 @@ type FollowerPackage struct {
 
 func Followers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
 
 	switch r.Method {
 	case "POST":
@@ -283,15 +280,13 @@ func CheckFollower(token string, browsed string) bool {
 
 	row6, _ := db.DBC.Query("SELECT status FROM Followers WHERE status = ? AND follower_id = ? AND recipient_id = ?", "following", followerId.Id, browsedId.Id)
 	defer row6.Close()
-	if !row6.Next() {
-		return false
-	}
-	return true
+
+	return row6.Next()
 }
 
 func PerformFollow(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -378,7 +373,7 @@ func PerformFollow(w http.ResponseWriter, r *http.Request) {
 //FOR OWNER TO ACCEPT A FOLLOW REQUEST AT PROFILE
 func AcceptFollower(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -444,7 +439,7 @@ func AcceptFollower(w http.ResponseWriter, r *http.Request) {
 //FOR OWNER TO REMOVE FOLLOWERS
 func RemoveFollower(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -584,7 +579,7 @@ func addFollower(token string, browsed string, profile_status string) error {
 //TO CHECK IF USER1 HAS REQUESTED TO FOLLOW USER2
 func CheckFollowRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -656,7 +651,7 @@ func CheckFollowRequest(w http.ResponseWriter, r *http.Request) {
 //CANCEL FOLLOW REQUEST 
 func CancelFollowRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}

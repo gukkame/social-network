@@ -4,10 +4,16 @@
             :to="{ name: data.CategoryTitle, params: { id: data.Id } }">
             <div class="postcardh d-flex flex-row">
                 <div>
-                    <img class="postProfileImg col" src="../assets/images/profile.svg" />
+                    <img v-if="data.User_image == ``" class="postProfileImg col"
+                        src="../assets/images/profile.svg" />
+                    <div v-else class="bubble3 col" style="margin-top: 7px; margin-left: 2px"></div>
+
                 </div>
                 <div class="col posthDetails">
-                    <div class="col postUser">{{ data.Username }}</div>
+                    <RouterLink :to="`/profile/${data.Username}`" style="text-decoration: none; width: 100%;"
+                        class="href">
+                        <div class="col postUser followerLink">{{ data.Username }}</div>
+                    </RouterLink>
                     <div class="col postTime">{{ humanReadableTime }}</div>
                 </div>
                 <div class="col-2 p-1">
@@ -47,7 +53,8 @@
                 </div>
                 <div class="col d-flex justify-content-center">
                     <div class="align-self-center ">
-                        <i :class="{ dislikeActive: IsDislikeActive, postVoteColor: NoDislikeActive }" class="postDislike bi bi-hand-thumbs-down"></i>
+                        <i :class="{ dislikeActive: IsDislikeActive, postVoteColor: NoDislikeActive }"
+                            class="postDislike bi bi-hand-thumbs-down"></i>
                         <span class="postReactCount ">{{ countDislikes }}</span>
                     </div>
                 </div>
@@ -68,6 +75,14 @@ export default {
                 Created_at: "01 Jan 1970 00:00:00 GMT"
             }
         },
+    },
+
+      mounted() {
+        let bubble = this.$el.querySelector(".bubble3")
+        if (bubble == null) {
+            return
+        }
+        bubble.style.backgroundImage = `url('http://localhost:8080${this.data.User_image}')`
     },
 
     computed: {

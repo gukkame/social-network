@@ -6,6 +6,7 @@ import (
 	"net/http"
 	db "real-time-forum/server/db"
 	ath "real-time-forum/server/services/authentication"
+	mw "real-time-forum/server/middleware"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -32,11 +33,6 @@ type VotesS struct {
 }
 
 func LikePost(w http.ResponseWriter, r *http.Request) {
-	SetupCORS(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
-
 	switch r.Method {
 	case "POST":
 		var newLike VotingS
@@ -195,7 +191,7 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func DislikePost(w http.ResponseWriter, r *http.Request) {
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -359,7 +355,7 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func LikeComment(w http.ResponseWriter, r *http.Request) {
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -476,7 +472,7 @@ func LikeComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func DislikeComment(w http.ResponseWriter, r *http.Request) {
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}

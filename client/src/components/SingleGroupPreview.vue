@@ -6,7 +6,7 @@
                 <div class="d-flex flex-column col">
                     <div class="d-flex justify-content-center align-items-center" style="height: 180px;">
                         <img v-if="data.Image == ``" class="profileimage col" src="../assets/images/groups.svg" />
-                         <div v-else class="row bubble" style="margin: 25px 0px 0px 0px"></div>
+                        <div v-else class="row bubble" style="margin: 25px 0px 0px 0px"></div>
                     </div>
                     <div class="d-flex justify-content-center align-items-center" style="height: 60px;">
                         <div style="font-size: 18px;">{{ data.Title }}</div>
@@ -47,7 +47,6 @@ export default {
     },
 
     mounted() {
-        console.log(this.data)
         let bubble = this.$el.querySelector(".bubble")
         if (bubble == null) {
             return

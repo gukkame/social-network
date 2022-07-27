@@ -218,6 +218,7 @@ nav.main-menu.expanded {
   font-size: 14px;
   text-decoration: none;
   -webkit-transform: translateZ(0) scale(1, 1);
+  transform: translateZ(0) scale(1, 1);
   -webkit-transition: all .1s linear;
   transition: all .1s linear;
 }
@@ -303,10 +304,10 @@ nav.main-menu li.active>a,
   height: 160px;
   border-radius: 50%;
   border: solid 1px rgb(219, 219, 219);
-   display: flex;
-  justify-content: center; 
-   align-items: center;
-   background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
 }
 
 .bubble2 {
@@ -314,11 +315,53 @@ nav.main-menu li.active>a,
   height: 60px;
   border-radius: 50%;
   border: solid 1px rgb(219, 219, 219);
-   display: flex;
-  justify-content: center; 
-   align-items: center;
-   background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
 }
+
+.bubble22{
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: solid 1px rgb(219, 219, 219);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+}
+
+
+
+.bubble3 {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: solid 1px rgb(219, 219, 219);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+}
+
+.bubble4 {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: solid 1px rgb(219, 219, 219);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+}
+
+
+
+
+
+
+
 
 .uploadProf {
   margin-top: 30px;
@@ -332,7 +375,7 @@ nav.main-menu li.active>a,
 }
 
 .uploadProf:hover {
-  background-color:#2E343D;
+  background-color: #2E343D;
   color: rgb(253, 252, 252);
   transition: 0.3s;
   transform: scale(1.08);
@@ -352,7 +395,7 @@ nav.main-menu li.active>a,
 }
 
 .deleteProf:hover {
-  background-color:red;
+  background-color: red;
   color: rgb(253, 252, 252);
   transition: 0.3s;
   transform: scale(1.08);
@@ -406,7 +449,6 @@ nav.main-menu li.active>a,
     outline: 0;
     border-width: 0 0 1px;
     border-color: #2E343D
-    
   }
 
   .form-input input {
@@ -804,6 +846,7 @@ nav.main-menu li.active>a,
 .followerLink:hover {
   text-decoration-line: underline;
 }
+
 .followSectTitle2 {
   font-size: 25px;
 }
@@ -824,6 +867,7 @@ nav.main-menu li.active>a,
   margin-left: 0px;
   overflow-y: hidden;
 }
+
 .oneFollowing:hover {
   transition: 0.3s;
   background-color: #e7e7e7bc;
@@ -1510,6 +1554,39 @@ nav.main-menu li.active>a,
 /* ----------------------------CREATE POST MODAL---------------------------- */
 .createPostModal {
   height: 400px;
+  padding: 25px;
+  background-color: rgb(253, 252, 252);
+  border: solid 1px rgb(165, 159, 159);
+  border-radius: 6px;
+}
+
+.createPostModal2 {
+  height: 500px;
+  padding: 25px;
+  background-color: rgb(253, 252, 252);
+  border: solid 1px rgb(165, 159, 159);
+  border-radius: 6px;
+}
+
+
+.createGroupPostModal {
+  height: 450px;
+  padding: 25px;
+  background-color: rgb(253, 252, 252);
+  border: solid 1px rgb(165, 159, 159);
+  border-radius: 6px;
+}
+
+.createGroupInviteModal {
+  height: 260px;
+  padding: 25px;
+  background-color: rgb(253, 252, 252);
+  border: solid 1px rgb(165, 159, 159);
+  border-radius: 6px;
+}
+
+.createGroupEventModal {
+  height: 470px;
   padding: 25px;
   background-color: rgb(253, 252, 252);
   border: solid 1px rgb(165, 159, 159);
@@ -2340,6 +2417,146 @@ nav.main-menu li.active>a,
 
 .singleGroupCol {
   height: 240px;
+}
+
+/* ----------------------------ONE GROUP---------------------------- */
+
+.oneGroup {
+  min-width: 750px;
+  max-width: 750px;
+  min-height: 240px;
+  max-height: 240px;
+  /* background-color: red; */
+  border-radius: 5px;
+  border: solid 1px rgb(165, 159, 159);
+  transition: 0.3s;
+  margin: 5px 5px 5px 5px;
+  display: inline-block;
+  box-sizing: unset;
+}
+
+.requestGroup {
+  width: 190px;
+  border: solid 1px rgb(219, 219, 219);
+  margin: 10px 12px 10px 4px;
+  border-radius: 4px;
+  padding: 2px;
+  background-color: rgb(253, 252, 252);
+  transition: 0.25s;
+  position: relative;
+
+}
+
+.requestGroup:hover {
+  transform: scale(1.13);
+  background-color: #FF9D5A;
+  color: rgb(253, 252, 252);
+  border: solid 0px rgb(219, 219, 219);
+}
+
+
+.unRequestGroup {
+  width: 130px;
+  border: solid 1px rgb(219, 219, 219);
+  margin: 10px 12px 10px 4px;
+  border-radius: 4px;
+  padding: 2px;
+  background-color: rgb(253, 252, 252);
+  transition: 0.25s;
+  position: relative;
+
+}
+
+.unRequestGroup:hover {
+  transform: scale(1.13);
+  background-color: red;
+  color: rgb(253, 252, 252);
+  border: solid 0px rgb(219, 219, 219);
+}
+
+
+/* ---------------------------SINGLE EVENT PREVIEW---------------------------- */
+
+.eventcard {
+  border-radius: 5px;
+  margin: 46px 35px 26px 35px;
+  min-width: 600px;
+  max-width: 600px;
+  min-height: 400px;
+  max-height: 400px;
+  border: solid 1px rgb(165, 159, 159);
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.eventcard a {
+  text-decoration: none;
+}
+
+.eventcard:hover {
+  transform: scale(1.03);
+  transition: 0.3s;
+}
+
+.eventcardH {
+  height: 10px;
+  min-height: 50px;
+  max-height: 50px;
+  padding: 2px 15px 2px 15px;
+}
+
+.eventcardF {
+  min-height: 69px;
+  max-height: 69px;
+  padding: 2px 10px 9px 10px;
+}
+
+.showeventGoingButton {
+  width: 90px;
+  border: solid 1px rgb(219, 219, 219);
+  margin: 10px 12px 10px 4px;
+  border-radius: 4px;
+  padding: 2px;
+  background-color: rgb(253, 252, 252);
+  transition: 0.25s;
+  position: relative;
+}
+
+.showeventGoingButton:hover {
+  transform: scale(1.13);
+  background-color: #FF9D5A;
+  color: rgb(253, 252, 252);
+  border: solid 0px rgb(219, 219, 219);
+}
+
+.goingActive {
+  background-color: #FF9D5A;
+  color: rgb(253, 252, 252);
+  border: solid 0px rgb(219, 219, 219);
+}
+
+.notGoingActive {
+  background-color: red !important;
+  color: rgb(253, 252, 252);
+  border: solid 0px rgb(219, 219, 219);
+}
+
+.showeventNotGoingButton {
+  width: 90px;
+  border: solid 1px rgb(219, 219, 219);
+  margin: 10px 12px 10px 4px;
+  border-radius: 4px;
+  padding: 2px;
+  background-color: rgb(253, 252, 252);
+  transition: 0.25s;
+  position: relative;
+}
+
+.showeventNotGoingButton:hover {
+  transform: scale(1.13);
+  background-color: red;
+  color: rgb(253, 252, 252);
+  border: solid 0px rgb(219, 219, 219);
 }
 
 /* ----------------------------MEDIA QUERIES---------------------------- */

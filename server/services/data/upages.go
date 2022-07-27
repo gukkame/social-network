@@ -7,6 +7,7 @@ import (
 	"net/http"
 	db "real-time-forum/server/db"
 	ath "real-time-forum/server/services/authentication"
+	mw "real-time-forum/server/middleware"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ type ActivityPackage struct {
 
 func Profile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -150,7 +151,7 @@ func Profile(w http.ResponseWriter, r *http.Request) {
 
 func ChangeProfileStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -279,7 +280,7 @@ func getProfile(browsed string) (ProfileS, error) {
 
 func Activity(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -408,7 +409,7 @@ func getActivity(browsed string) (CompletePackageS3, error) {
 	}
 
 	var aPackage ActivityPackage
-	rows, err := db.DBC.Query("SELECT Posts.id, Posts.title, Posts.content, Posts.created_at, Users.username, Categories.title AS category_title FROM Posts INNER JOIN Users ON Users.id = Posts.user_id INNER JOIN Categories ON Categories.id = Posts.category_id WHERE user_id = ? ORDER BY Posts.created_at DESC", existingUser.Id)
+	rows, err := db.DBC.Query("SELECT Posts.id, Posts.title, Posts.content, Posts.created_at, Users.username, Users.avatar_image, Categories.title AS category_title FROM Posts INNER JOIN Users ON Users.id = Posts.user_id INNER JOIN Categories ON Categories.id = Posts.category_id WHERE user_id = ? ORDER BY Posts.created_at DESC", existingUser.Id)
 	if err != nil {
 		return CompletePackageS3{}, err
 	}
@@ -418,7 +419,7 @@ func getActivity(browsed string) (CompletePackageS3, error) {
 
 	for rows.Next() {
 		var obj NeededData
-		err := rows.Scan(&obj.Id, &obj.Title, &obj.Description, &obj.Created_at, &obj.Username, &obj.CategoryTitle)
+		err := rows.Scan(&obj.Id, &obj.Title, &obj.Description, &obj.Created_at, &obj.Username,  &obj.User_image, &obj.CategoryTitle)
 		if err != nil {
 			return CompletePackageS3{}, err
 		}
@@ -455,17 +456,17 @@ func getActivity(browsed string) (CompletePackageS3, error) {
 			myVotes = append(myVotes, singleVotes)
 		}
 
-		obj.Likes = append(myVotes)
-		obj.Comments = append(obj3)
+		obj.Likes = myVotes
+		obj.Comments = obj3
 		existingData = append(existingData, obj)
-		aPackage.Posts = append(existingData)
+		aPackage.Posts = existingData
 	}
 	err = rows.Err()
 	if err != nil {
 		return CompletePackageS3{}, err
 	}
 
-	rows2, err := db.DBC.Query("SELECT Posts.id, Posts.title, Posts.content, Posts.created_at, Users.username, Categories.title AS category_title FROM Post_likes INNER JOIN Categories ON Categories.id = Posts.category_id INNER JOIN Users ON Users.id = Posts.user_id INNER JOIN Posts ON Posts.id = Post_likes.post_id WHERE Post_likes.user_id = ? ORDER BY Posts.created_at DESC", existingUser.Id)
+	rows2, err := db.DBC.Query("SELECT Posts.id, Posts.title, Posts.content, Posts.created_at, Users.username, Users.avatar_image, Categories.title AS category_title FROM Post_likes INNER JOIN Categories ON Categories.id = Posts.category_id INNER JOIN Users ON Users.id = Posts.user_id INNER JOIN Posts ON Posts.id = Post_likes.post_id WHERE Post_likes.user_id = ? ORDER BY Posts.created_at DESC", existingUser.Id)
 	if err != nil {
 		return CompletePackageS3{}, err
 	}
@@ -475,7 +476,7 @@ func getActivity(browsed string) (CompletePackageS3, error) {
 
 	for rows2.Next() {
 		var obj NeededData
-		err := rows2.Scan(&obj.Id, &obj.Title, &obj.Description, &obj.Created_at, &obj.Username, &obj.CategoryTitle)
+		err := rows2.Scan(&obj.Id, &obj.Title, &obj.Description, &obj.Created_at, &obj.Username, &obj.User_image, &obj.CategoryTitle)
 		if err != nil {
 			return CompletePackageS3{}, err
 		}
@@ -512,17 +513,17 @@ func getActivity(browsed string) (CompletePackageS3, error) {
 			myVotes = append(myVotes, singleVotes)
 		}
 
-		obj.Likes = append(myVotes)
-		obj.Comments = append(obj3)
+		obj.Likes = myVotes
+		obj.Comments = obj3
 		existingData2 = append(existingData2, obj)
-		aPackage.VotedPosts = append(existingData2)
+		aPackage.VotedPosts = existingData2
 	}
 	err = rows.Err()
 	if err != nil {
 		return CompletePackageS3{}, err
 	}
 
-	rows3, err := db.DBC.Query("SELECT Comments.id, Comments.content, Comments.created_at, Comments.user_id, Comments.post_id, Users.username, Categories.title AS category_title FROM Posts INNER JOIN Users ON Users.id = Comments.user_id INNER JOIN Categories ON Categories.id = Posts.category_id INNER JOIN Comments ON Comments.post_id = Posts.id WHERE Comments.user_id = ? ORDER BY Comments.created_at DESC", existingUser.Id)
+	rows3, err := db.DBC.Query("SELECT Comments.id, Comments.content, Comments.created_at, Comments.user_id, Comments.post_id, Users.username, Users.avatar_image, Categories.title AS category_title FROM Posts INNER JOIN Users ON Users.id = Comments.user_id INNER JOIN Categories ON Categories.id = Posts.category_id INNER JOIN Comments ON Comments.post_id = Posts.id WHERE Comments.user_id = ? ORDER BY Comments.created_at DESC", existingUser.Id)
 	if err != nil {
 		return CompletePackageS3{}, err
 	}
@@ -531,7 +532,7 @@ func getActivity(browsed string) (CompletePackageS3, error) {
 	var obj3 []CommentsS
 	for rows3.Next() {
 		var obj2 CommentsS
-		err2 := rows3.Scan(&obj2.Id, &obj2.Content, &obj2.Created_at, &obj2.User_id, &obj2.Post_id, &obj2.Username, &obj2.Category_title)
+		err2 := rows3.Scan(&obj2.Id, &obj2.Content, &obj2.Created_at, &obj2.User_id, &obj2.Post_id, &obj2.Username,&obj2.User_Image, &obj2.Category_title,)
 		if err2 != nil {
 			return CompletePackageS3{}, err
 		}
@@ -552,13 +553,13 @@ func getActivity(browsed string) (CompletePackageS3, error) {
 			myCommentVotes = append(myCommentVotes, singleVotes)
 		}
 
-		obj2.Likes = append(myCommentVotes)
+		obj2.Likes = myCommentVotes
 
 		obj3 = append(obj3, obj2)
 
 	}
 
-	aPackage.Comments = append(obj3)
+	aPackage.Comments = obj3
 
 	var packages CompletePackageS3
 

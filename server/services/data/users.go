@@ -3,12 +3,15 @@ package data_services
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	db "real-time-forum/server/db"
+	mw "real-time-forum/server/middleware"
 	ath "real-time-forum/server/services/authentication"
+	"real-time-forum/server/services/data/groups"
 	val "real-time-forum/server/services/validation"
 	"strings"
 
@@ -74,17 +77,17 @@ type LogInS struct {
 }
 
 type UsernameS struct {
-	Username string `json: "username"`
+	Username string `json:"username"`
 }
 
 type EmailS struct {
-	Email string `json: "email"`
+	Email string `json:"email"`
 }
 
 var newUser NewUserS
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -109,7 +112,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		newUser.Password = (r.Form["password"][0])
 
 		if val.ValidateUserData(newUser.Username, newUser.Email, newUser.FirstName, newUser.LastName, newUser.Age, newUser.Gender, newUser.Password, newUser.NickName, newUser.AboutMe) {
-			newUser.Password, err = HashPassword(newUser.Password)
+			newUser.Password, err = mw.HashPassword(newUser.Password)
 			if err != nil {
 				w.Write([]byte(`{"message": "Malicious user detected"}`))
 				return
@@ -139,7 +142,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 					id := uuid.New()
 					img_id := id.String()
 					s := strings.Split(header.Filename, ".")
-					
+
 					out, err := os.OpenFile("./resources/profile/"+img_id+"."+s[len(s)-1], os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 					if err != nil {
 						w.Write([]byte(`{"message": "Malicious user detected"}`))
@@ -172,7 +175,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 var existingUser LogInS
 
 func LogIn(w http.ResponseWriter, r *http.Request) {
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -239,7 +242,7 @@ func LogIn(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if !CheckPasswordHash(existingUser.Password, existingData.Password) {
+			if !mw.CheckPasswordHash(existingUser.Password, existingData.Password) {
 				w.Write([]byte(`{"message": "Invalid credentials"}`))
 				return
 			}
@@ -268,7 +271,7 @@ var oneUsername UsernameS
 
 func Username(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -301,7 +304,7 @@ var oneEmail EmailS
 
 func Email(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	SetupCORS(&w, r)
+	mw.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -329,4 +332,44 @@ func Email(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"value": "true"}`))
 		}
 	}
+}
+
+func AllUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := DbGetAllUsers()
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf(`{"message":"%s"}`, err)))
+		return
+	}
+	groups.SendResponse(w, users)
+}
+
+func DbGetAllUsers() (users []groups.User, err error) {
+	query := "SELECT Id, Username FROM Users"
+	rows, err := db.DBC.Query(query)
+	if err != nil {
+		return users, err
+	}
+
+	for rows.Next() {
+		user := groups.User{}
+		err := rows.Scan(&user.Id, &user.Username)
+		if err != nil {
+			return users, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+func CheckFollowing(userIdA int, userIdB int) (isAllowed bool, err error) {
+	var matches int
+	query := "SELECT COUNT(status) FROM Followers WHERE follower_id = ? AND recipient_id = ?"
+	row := db.DBC.QueryRow(query, userIdA, userIdB)
+
+	err = row.Scan(&matches)
+	if err != nil {
+		return false, err
+	}
+
+	return matches == 1, nil
 }

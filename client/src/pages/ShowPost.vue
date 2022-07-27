@@ -6,7 +6,8 @@ import DeletePostComp from "../components/modals/DeletePost.vue"
 </script>
 
 <template>
-    <div v-if="post.Id != 0" class="showpost">
+    <PageNotFoundComp v-if="post.Id == 0" />
+    <div v-else class="showpost">
         <div class="d-flex justify-content-center">
             <div class="showpostinfo">
                 <div v-if="IsPostOwner" class="d-flex">
@@ -19,10 +20,15 @@ import DeletePostComp from "../components/modals/DeletePost.vue"
                 </div>
                 <div class="showpostinfoh d-flex flex-row">
                     <div>
-                        <img class="showpostProfileImg col" src="../assets/images/profile.svg" />
+                        <div v-if="post_user.Avatar_image != ``" class="bubble22 col"
+                            style="margin-top: 7px; margin-left: 2px"></div>
+                        <img v-else class="showpostProfileImg col" src="../assets/images/profile.svg" />
                     </div>
                     <div class="col posthDetails">
-                        <div class="col showpostUser">{{ post.Username }}</div>
+                          <RouterLink :to="`/profile/${post.Username}`" style="text-decoration: none; width: 100%;"
+                            class="href">
+                            <div class="col showpostUser followerLink">{{ post.Username }}</div>
+                        </RouterLink>
                         <div class="col showpostTime">{{ humanReadableTime }}</div>
                     </div>
                     <div class="col-2 p-1">
@@ -45,6 +51,10 @@ import DeletePostComp from "../components/modals/DeletePost.vue"
                         </div>
                         <div class="showpostDescp text-wrap text-break text-start col">
                             {{ post.Description }}
+                        </div>
+                        <div class="showpostDescp text-wrap text-break text-start col">
+                            <img v-if="displayImage" style="width: 250px; height: auto"
+                                :src="`http://localhost:8080${post.Image}`">
                         </div>
                     </div>
                 </div>
@@ -88,12 +98,26 @@ import DeletePostComp from "../components/modals/DeletePost.vue"
                                             <br />
                                         </div>
                                         <div class="d-flex justify-content-end">
-                                            <span class="formErrors">{{ errors.description }}</span>
-                                            <div class="formErrors">{{ errormsg }}</div>
+                                            <div class="col d-flex align-items-center justify-content-around"
+                                                style="height: 30px;">
+                                                <div class="d-flex col">
+                                                    <input type="file" name="img" id="img"
+                                                        accept="image/x-png,image/jpeg"
+                                                        @change="handleFileUpload($event)" style="display: none" />
+                                                    <label style=""
+                                                        class="uploadProf d-flex justify-content-center align-items-center "
+                                                        for="img">Upload image</label>
+                                                    <label v-if="file != null" @click="deleteImage"
+                                                        class="deleteProf d-flex justify-content-center align-items-center">
+
+                                                        <i class="bi bi-trash"></i></label>
+                                                </div>
+                                                <div class="d-flex align-items-center col" style="padding-top: 25px"
+                                                    v-if="file != null">{{ this.file.name }}
+                                                </div>
+                                            </div>
+                                            <button class="comment-create">Comment</button>
                                         </div>
-                                    </div>
-                                    <div class="d-flex justify-content-end">
-                                        <button class="comment-create">Comment</button>
                                     </div>
                                 </div>
                             </div>
@@ -106,10 +130,9 @@ import DeletePostComp from "../components/modals/DeletePost.vue"
                 </div>
             </div>
         </div>
+        <EditPostComp :data="post" />
+        <DeletePostComp :data="post" />
     </div>
-    <PageNotFoundComp v-else />
-    <EditPostComp :data="post" />
-    <DeletePostComp :data="post" />
 </template>
 
 
@@ -122,7 +145,6 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
 import { timeago } from "../common-js/time.js"
-import { createCookie } from "../common-js/cookies.js";
 import { delay } from "../common-js/time.js";
 
 export default {
@@ -145,16 +167,10 @@ export default {
         });
         return {
             errorSchema,
-            post: {
-                Id: 1,
-                Username: "",
-                Created_at: "",
-                Title: "",
-                Description: "",
-                CategoryTitle: "",
-                Likes: [],
-            },
-            Comments: []
+            post: {},
+            post_user: {},
+            Comments: [],
+            file: null
         };
     },
     components: {
@@ -175,7 +191,20 @@ export default {
         )
     },
 
+    updated() {
+
+    },
+
     methods: {
+
+        handleFileUpload(event) {
+            this.file = event.target.files[0];
+        },
+
+        deleteImage() {
+            this.file = null;
+        },
+
         async fetchData() {
             let currentRouter = this.$route.path
             let correctCategory = currentRouter.split("/")
@@ -195,19 +224,25 @@ export default {
             await delay(100).then(() => {
                 axios.post("http://localhost:8080/onepost", data, config)
                     .then((res) => {
-                        if (res.data.message === "Post request failed") {
-                            return router.go(-1)
-                        }
+                        /*  if (res.data.message === "Post request failed") {
+                             return router.go(-1)
+                         } */
                         this.post = res.data
                         this.Comments = res.data.Comments
-                        let Cookie = res.data.Cookie
-                        if (Cookie.Id.length != 0 && Cookie.Username.length != 0) {
-                            createCookie(Cookie.Id, Cookie.Username)
+                        this.post_user = res.data.User
+                        let bubble = this.$el.querySelector(".bubble22")
+                        if (bubble == null) {
+                            return
                         }
+
+                        bubble.style.backgroundImage = `url('http://localhost:8080${this.post_user.Avatar_image}')`
+
                     })
                     .catch((error) => { });
             })
         },
+
+
         newComment(value) {
             let token = document.cookie
 
@@ -222,10 +257,14 @@ export default {
             const textarea = document.getElementById('newComment');
             textarea.value = null;
 
-            let data = {
-                categoryname: correctCategory[1],
-                postid: correctCategory[2],
-                Content: value.description,
+            let formData = new FormData()
+            formData.append("categoryname", correctCategory[1])
+            formData.append("postid", correctCategory[2])
+            formData.append("content", value.description)
+            if (this.file == null) {
+                formData.append("img", "");
+            } else {
+                formData.append("img", this.file);
             }
 
             let config = {
@@ -234,7 +273,7 @@ export default {
                 }
             }
 
-            axios.post("http://localhost:8080/createcomment", data, config)
+            axios.post("http://localhost:8080/createcomment", formData, config)
                 .then((res) => {
                     if (res.data.message === "User not authenticated") {
                         return router.go(currentRouter)
@@ -319,6 +358,14 @@ export default {
     },
 
     computed: {
+        displayImage() {
+            if (this.post.Image) {
+                if (this.post.Image.length == 0) {
+                    return false
+                }
+                return true
+            }
+        },
         humanReadableTime() {
             return timeago(new Date(Date.now() - new Date(Date.parse(this.post.Created_at))))
         },

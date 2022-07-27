@@ -181,16 +181,11 @@ export default {
                         if (res.data.message === "Post request failed") {
                             return router.go(-1)
                         }
-                        this.go = res.data.Posts.Go
-                        this.html = res.data.Posts.Html
-                        this.css = res.data.Posts.Css
-                        this.javascript = res.data.Posts.JavaScript
-                        this.vue = res.data.Posts.Vuejs
-                        let Cookie = res.data.Cookie
-                        if (Cookie.Id.length != 0 && Cookie.Username.length != 0) {
-                            createCookie(Cookie.Id, Cookie.Username)
-                        }
-                        console.log(this.go)
+                        this.go = res.data.Go
+                        this.html = res.data.Html
+                        this.css = res.data.Css
+                        this.javascript = res.data.JavaScript
+                        this.vue = res.data.Vuejs
                     })
                     .catch((error) => { });
             })
