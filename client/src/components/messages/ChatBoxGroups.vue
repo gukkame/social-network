@@ -8,7 +8,7 @@ import MessageComp from "./MessageBoxGroup.vue";
       <img
         v-if="data.Image == ``"
         class="bubble3 col"
-        src="../../assets/images/profile.svg"
+        src="../../assets/images/groups.svg"
       />
       <div v-else v-bind:id="data.Name" class="bubble3 col-2"></div>
     </div>

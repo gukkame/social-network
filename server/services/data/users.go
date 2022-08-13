@@ -102,6 +102,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"message": "Malicious user detected"}`))
 			return
 		}
+		
 		newUser.Username = (r.Form["username"][0])
 		newUser.Email = (r.Form["email"][0])
 		newUser.FirstName = (r.Form["firstname"][0])

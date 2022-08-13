@@ -213,9 +213,10 @@ func EventCreatedNotif(currentConn *websocket.Conn, data ReceivedDataS) {
 			}
 
 		}
-
+		
 	}
 }
+
 func SaveNotif(data ReceivedDataS, group int, group_id int) {
 
 	var user2ID int

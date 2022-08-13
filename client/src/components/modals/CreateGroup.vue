@@ -123,8 +123,11 @@ export default {
       formData.append("token", correctToken[0]);
 
       axios.post("http://localhost:8080/creategroup", formData)
-      
+
         .then((res) => {
+          if (res.data.message === "Image is too big!") {
+            return this.errormsg = res.data.message
+          }
           if (res.data.message === "Malicious user detected") {
             return this.errormsg = res.data.message
           }
