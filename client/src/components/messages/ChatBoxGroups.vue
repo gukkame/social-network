@@ -10,7 +10,7 @@ import MessageComp from "./MessageBoxGroup.vue";
         class="bubble3 col"
         src="../../assets/images/groups.svg"
       />
-      <div v-else v-bind:id="data.Name" class="bubble3 col-2"></div>
+      <div v-else v-bind:id="data.Name + data.Id" class="bubble3 col-2"></div>
     </div>
     <div class="col messageDetails justify-content-start">
       <div class="col-10 chatwindowUser">{{ data.Name }}</div>
@@ -42,7 +42,7 @@ export default {
   },
 
   mounted: function () {
-      let bubble = document.getElementById(this.data.Name);
+      let bubble = document.getElementById(this.data.Name + this.data.Id);
       if (bubble != null) {
             this.img = "url(http://localhost:8080" + this.data.Image + ")"
             bubble.style.backgroundImage = this.img
