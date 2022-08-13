@@ -45,7 +45,7 @@ func GenerateCookieInfo(username string) Cookie {
 }
 
 func GenerateSession(token_id string, user_id int) error {
-	stmt, err := db.DBC.Prepare("INSERT INTO Sessions(token, user_id, expiry_date) VALUES(?, ?, datetime('now','+10 minutes'))")
+	stmt, err := db.DBC.Prepare("INSERT INTO Sessions(token, user_id, expiry_date) VALUES(?, ?, datetime('now','+1 years'))")
 	if err != nil {
 		return err
 	}
@@ -94,13 +94,6 @@ func AuthUser(token string) bool {
 	if !dateNow.Before(DateTimeSession) {
 		DeleteSession(token)
 		return false
-	}
-	stmt, _ := db.DBC.Prepare(`UPDATE Sessions SET expiry_date = datetime('now','+10 minutes') WHERE token = ?`)
-	stmt.Exec(token)
-	defer stmt.Close()
-	err2 := DeleteOldSessions()
-	if err2 != nil {
-		return true
 	}
 	return true
 }

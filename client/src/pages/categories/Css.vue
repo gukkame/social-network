@@ -1,7 +1,7 @@
 <script setup>
 import CategoryComp from "../../components/Categories.vue"
 import SingePostPreviewComp from "../../components/SinglePostPreview.vue"
-import CreatePostComp from "../../components/CreatePost.vue"
+import CreatePostComp from "../../components/modals/CreatePost.vue"
 
 </script>
 
@@ -90,11 +90,7 @@ export default {
                         if (res.data.message === "Post request failed") {
                             return router.go(-1)
                         }
-                        this.posts = res.data.Posts
-                        let Cookie = res.data.Cookie
-                        if (Cookie.Id.length != 0 && Cookie.Username.length != 0) {
-                            createCookie(Cookie.Id, Cookie.Username)
-                        }
+                        this.posts = res.data
                     })
                     .catch((error) => { });
             })

@@ -15,7 +15,7 @@ git clone https://01.kood.tech/git/nimi25820/social-network
 - In the second terminal, navigate to ./client, run ```npm install```, then ```npm run build```(PS. you need to have npm installed to do this), then run ```node server.js```
 - Server should be now running on ```http://localhost:8090/```
 #### Using Docker
-- Make sure your docker is running. By using ```sudo service docker run``` It should start it up.
+- Make sure your docker is running. By using ```sudo service docker start``` It should start it up.
 - First, run ```chmod u+x dockerbuild.sh``` and then ```./dockerbuild.sh```. This will build two images: one for `server` and one for `client`, puts them both in a container.
 - Server should be now running on ```http://localhost:8090/```
 - After, you can remove the created images by first, running ```chmod u+x dockerremove.sh``` and then ```./dockerremove.sh```.
@@ -42,4 +42,5 @@ git clone https://01.kood.tech/git/nimi25820/social-network
 - [vue-cookies-reactive](https://www.npmjs.com/package/vue-cookies-reactive)
 - [Vue Router](https://router.vuejs.org/)
 - [yup](https://github.com/jquense/yup)
+- [Vue3-emoji-picker](https://www.npmjs.com/package/vue3-emoji-picker?activeTab=explore)
 

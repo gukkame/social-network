@@ -1,10 +1,12 @@
 <script setup>
 import { RouterView } from "vue-router";
-import HeaderComp from "../components/Header.vue";
-import SidebarComp from "../components/Sidebar.vue"
-import FooterComp from "../components/Footer.vue"
-import ScrollTopComp from "../components/ScrollTop.vue"
-import ChatComp from "../components/Messages/ChatIcon.vue"
+import Notifications from "../components/page_parts/Notifications.vue";
+import HeaderComp from "../components/page_parts/Header.vue";
+import SidebarComp from "../components/page_parts/Sidebar.vue"
+import FooterComp from "../components/page_parts/Footer.vue"
+import ScrollTopComp from "../components/page_parts/ScrollTop.vue"
+import ChatComp from "../components/messages/ChatIcon.vue"
+
 </script>
 
 <template>
@@ -14,7 +16,8 @@ import ChatComp from "../components/Messages/ChatIcon.vue"
     <div class="body-app-main">
       <RouterView :LoggedIn="cookieExists" :data="info.Username" />
       <ScrollTopComp />
-      <ChatComp v-if="cookieExists == true"/>
+      <ChatComp v-if="cookieExists == true" />
+      <Notifications :data="data" />
     </div>
     <FooterComp />
   </div>
@@ -25,6 +28,8 @@ import ChatComp from "../components/Messages/ChatIcon.vue"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
+import { connectToWS, ws } from "../common-js/messages.js";
+
 
 export default {
   data() {
@@ -33,7 +38,22 @@ export default {
       info: {
         Username: "",
       },
+      data: {},
     };
+  },
+
+  mounted() {
+    if (this.cookieExists == true) {
+      ws.addEventListener("message", (event) => {
+        this.notifications(event);
+      })
+    }
+  },
+
+  beforeMount() {
+    if (this.cookieExists == true) {
+      connectToWS();
+    }
   },
 
   created() {
@@ -55,7 +75,14 @@ export default {
       let correctToken = token.split(":")
       this.cookieExists = true
       this.info.Username = correctToken[1]
-    }
+    },
+    notifications(event) {
+      let incomingData = JSON.parse(event.data.toString());
+      if (incomingData.Type == "followNotif" || incomingData.Type == "GroupInvNotif" || incomingData.Type == "GroupJoinReqNotif" || incomingData.Type == "NewEventNotif") {
+
+        this.data = incomingData
+      }
+    },
   },
 }
 

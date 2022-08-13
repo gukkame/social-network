@@ -2,10 +2,14 @@
 import ActiviySelectorComp from "../components/ActiviySelector.vue"
 import ActivityCommentComp from "../components/ActivityComment.vue"
 import SingePostPreviewComp from "../components/SinglePostPreview.vue"
+import PageNotFoundComp from "./PageNotFound.vue"
+import NotFollowingComp from "../components/NotFollowing.vue"
 </script>
 
 <template>
-    <div class="profile container col">
+    <PageNotFoundComp v-if="notExist" />
+    <NotFollowingComp v-else-if="notFollowing" />
+    <div v-else class="profile container col">
         <ActiviySelectorComp :selected="selected" />
         <div class="noAvailable d-flex justify-content-center"
             v-if="posts == null && Comments == null && VotedPosts == null">
@@ -13,9 +17,14 @@ import SingePostPreviewComp from "../components/SinglePostPreview.vue"
         </div>
         <div v-if="posts != null">
             <div class="d-flex">
-                <div class="catetitle col">
+                <div v-if="owner" class="catetitle col">
                     <i class="bi bi-bookmark"></i>
                     Your posts
+                    ({{ checkPosts(posts) }})
+                </div>
+                <div v-else class="catetitle col">
+                    <i class="bi bi-bookmark"></i>
+                    {{ getOwner }} posts
                     ({{ checkPosts(posts) }})
                 </div>
             </div>
@@ -32,9 +41,14 @@ import SingePostPreviewComp from "../components/SinglePostPreview.vue"
 
         <div v-if="VotedPosts != null">
             <div class="d-flex">
-                <div class="catetitle col">
+                <div v-if="owner" class="catetitle col">
                     <i class="bi bi-bookmark-star"></i>
                     Your reacted posts
+                    ({{ checkPosts(VotedPosts) }})
+                </div>
+                <div v-else class="catetitle col">
+                    <i class="bi bi-bookmark-star"></i>
+                    {{ getOwner }} reacted posts
                     ({{ checkPosts(VotedPosts) }})
                 </div>
             </div>
@@ -51,9 +65,14 @@ import SingePostPreviewComp from "../components/SinglePostPreview.vue"
 
         <div v-if="Comments != null">
             <div class="d-flex">
-                <div class="catetitle col">
+                <div v-if="owner" class="catetitle col">
                     <i class="bi bi-chat-dots"></i>
                     Your comments
+                    ({{ checkPosts(Comments) }})
+                </div>
+                <div v-else class="catetitle col">
+                    <i class="bi bi-chat-dots"></i>
+                    {{ getOwner }} comments
                     ({{ checkPosts(Comments) }})
                 </div>
             </div>
@@ -78,7 +97,6 @@ import router from "../router";
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
-import { createCookie } from "../common-js/cookies.js";
 import { delay } from "../common-js/time.js";
 
 export default {
@@ -94,7 +112,10 @@ export default {
             posts: [],
             VotedPosts: [],
             Comments: [],
-            selected: "activity"
+            selected: "activity",
+            notFollowing: false,
+            notExist: false,
+            owner: false,
         };
     },
     components: {
@@ -116,34 +137,40 @@ export default {
         async fetchData() {
             let token = document.cookie
             let correctToken = token.split(":")
-
-            if (token.length === 0) {
-                return router.push("/")
-            }
-
-            let data = {
-
-            }
-
             let config = {
                 headers: {
                     header1: correctToken[0],
                 }
             }
 
+            let path = this.$route.path
+            let person = path.split("/")
+
+            let data = {
+                Username: person[2]
+            }
+
             await delay(200).then(() => {
                 axios.post("http://localhost:8080/activity", data, config)
                     .then((res) => {
-                        if (res.data.message === "User not authenticated") {
-                            return router.push("/")
+
+                        if (res.data.message == "Profile does not exist") {
+                            this.notExist = true
+                            return
                         }
+
+                        if (res.data.message == "Not following") {
+                            this.notFollowing = true
+                            return
+                        }
+
+                        if (res.data.Status == "owner") {
+                            this.owner = true
+                        }
+
                         this.posts = res.data.Package.Posts
                         this.VotedPosts = res.data.Package.VotedPosts
                         this.Comments = res.data.Package.Comments
-                        let Cookie = res.data.Cookie
-                        if (Cookie.Id.length != 0 && Cookie.Username.length != 0) {
-                            createCookie(Cookie.Id, Cookie.Username)
-                        }
                     })
                     .catch((error) => { });
             })
@@ -154,11 +181,14 @@ export default {
             } else {
                 return arg.length
             }
-        }
+        },
     },
-
-
-
+    computed: {
+        getOwner() {
+            let path = this.$route.path.split("/")
+            return path[2]
+        }
+    }
 };
 </script>
 

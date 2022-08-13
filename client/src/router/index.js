@@ -22,16 +22,58 @@ const router = createRouter({
       component: () => import('../pages/Signup.vue')
     },
     {
-      path: '/profile',
+      path: '/profile/:id',
       name: 'profile',
      
       component: () => import('../pages/Profile.vue')
     },
     {
-      path: '/activity',
+      path: '/profile/:id/activity',
       name: 'activity',
      
       component: () => import('../pages/Activity.vue')
+    },
+    {
+      path: '/profile/:id/followers',
+      name: 'followers',
+     
+      component: () => import('../pages/Following.vue')
+    },
+    //GROUPS
+    {
+      path: '/groups',
+      name: 'groups',
+     
+      component: () => import('../pages/Groups.vue')
+    },
+    {
+      path: '/groups/:id',
+      name: 'group',
+      redirect: {name: 'groupposts'},
+     
+      component: () => import('../pages/group/SingleGroup.vue'),
+      children: [
+        {
+          path: 'posts',
+          name: 'groupposts',
+          component: () => import('../pages/group/GroupPosts.vue'),
+        },
+        {
+          path: 'events',
+          name: 'events',
+          component: () => import('../pages/group/GroupEvents.vue'),
+        },
+        {
+          path: 'admin',
+          name: 'admin',
+          component: () => import('../pages/group/GroupAdmin.vue'),
+        },
+      ],
+    },
+    {
+      path: '/groups/:id/posts/:postid',
+      name: 'onegrouppost',
+      component: () => import('../pages/group/ShowGroupPost.vue')
     },
 
     //CATEGORIES

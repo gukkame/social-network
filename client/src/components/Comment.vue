@@ -2,10 +2,15 @@
     <div class="comment">
         <div class="commenth d-flex flex-row">
             <div>
-                <img class="commentProfileImg col" src="../assets/images/profile.svg" />
+               
+                <div v-if="data.User.Avatar_image != ``" class="bubble4 col" style="margin-top: 7px; margin-left: 2px;">
+                </div>
+                <img v-else class="commentProfileImg col" src="../assets/images/profile.svg" />
             </div>
             <div class="col posthDetails">
-                <div class="col commentUser">{{ data.Username }}</div>
+                <RouterLink :to="`/profile/${data.Username}`" style="text-decoration: none; width: 100%;" class="href">
+                    <div class="col commentUser followerLink">{{ data.Username }}</div>
+                </RouterLink>
                 <div class="col commentTime">{{ humanReadableTime }}</div>
             </div>
         </div>
@@ -13,6 +18,10 @@
             <div class="col">
                 <div class="commentDescp text-wrap text-break text-start col">
                     {{ data.Content }}
+                </div>
+                <div class="commentDescp text-wrap text-break text-start col">
+                    <img v-if="displayImage" style="width: 250px; height: auto"
+                        :src="`http://localhost:8080${data.Image}`">
                 </div>
             </div>
         </div>
@@ -43,6 +52,22 @@ export default {
             type: Object,
             required: true
         }
+    },
+
+    mounted() {
+        let bubble = this.$el.querySelector(".bubble4")
+        if (bubble == null) {
+            return
+        }
+        bubble.style.backgroundImage = `url('http://localhost:8080${this.data.User.Avatar_image}')`
+    },
+
+    updated() {
+        let bubble = this.$el.querySelector(".bubble4")
+        if (bubble == null) {
+            return
+        }
+        bubble.style.backgroundImage = `url('http://localhost:8080${this.data.User.Avatar_image}')`
     },
 
     methods: {
@@ -109,6 +134,13 @@ export default {
     },
 
     computed: {
+        displayImage() {
+            if (this.data.Image.length == 0) {
+                return false
+            }
+            return true
+        },
+
         humanReadableTime() {
             return timeago(new Date(Date.now() - new Date(Date.parse(this.data.Created_at))))
         },

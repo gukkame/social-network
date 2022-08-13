@@ -85,7 +85,23 @@ func ValidComment(comment string) bool {
 	return re.Match([]byte(comment))
 }
 
-func ValidateUserData(username string, email string, firstname string, lastname string, age string, gender string, password string) bool {
+//Optional
+func ValidNickName(nickname string) bool {
+	if nickname == "" {
+		return true
+	}
+	re := regexp.MustCompile(`^[A-Za-z0-9\s\.,;:!?()"'%\-]{1,16}$`)
+	return re.Match([]byte(nickname)) 
+}
+func ValidAboutMe(content string) bool {
+	if content == "" {
+		return true
+	}
+	re := regexp.MustCompile(`^[A-Za-z0-9\s\.,;:!?()"'%\-]{1,500}$`)
+	return re.Match([]byte(content))
+}
+
+func ValidateUserData(username string, email string, firstname string, lastname string, age string, gender string, password string, nickname string, about_me string) bool {
 	if !ValidUsername(username) {
 		return false
 	}
@@ -111,6 +127,12 @@ func ValidateUserData(username string, email string, firstname string, lastname 
 	}
 
 	if !ValidPassword(password) {
+		return false
+	}
+	if !ValidNickName(nickname) {
+		return false
+	}
+	if !ValidAboutMe(about_me) {
 		return false
 	}
 	return true
