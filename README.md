@@ -42,4 +42,5 @@ git clone https://01.kood.tech/git/nimi25820/social-network
 - [vue-cookies-reactive](https://www.npmjs.com/package/vue-cookies-reactive)
 - [Vue Router](https://router.vuejs.org/)
 - [yup](https://github.com/jquense/yup)
+- [Vue3-emoji-picker](https://www.npmjs.com/package/vue3-emoji-picker?activeTab=explore)
 

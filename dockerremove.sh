@@ -2,10 +2,14 @@
 docker stop clientcontainer
 docker stop servercontainer
 
-#Deletes all the containers not running
-docker container prune
+#Deletes both the containers
+docker rm clientcontainer
+docker rm servercontainer
 
-#Deletes all the images not used by a container
-docker image prune -a
+#Deletes both the images
+docker rmi serverimage
+docker rmi clientimage
+docker rmi 36fad710e29d
+docker rmi a09e5e1306fb
 
 echo -e "Removal successful\n" 

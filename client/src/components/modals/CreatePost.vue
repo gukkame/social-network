@@ -57,7 +57,7 @@
                                     </div>
 
                                     <div v-if="selected == `Private` && filteredUsers != 0"
-                                        style="margin-top: 20px; width: 50px; position: absolute; bottom: 10px; right: 140px;">
+                                        style="margin-top: 20px; width: 50px; position: absolute; bottom: 80px; right: 140px;">
                                         <Field v-model="selected2" :class="{ forminputerror: errors.allowedUsers }"
                                             as="select" name="allowedUsers" id="allowedUsers" multiple>
                                             <option v-for="option in  filteredUsers" :value="option.Username">{{
@@ -67,8 +67,8 @@
                                         <br />
                                         <span class="formErrors">{{ errors.privateUsers }}</span>
                                     </div>
-                                    <div v-else
-                                        style="margin-top: 20px; width: 50px; position: absolute; bottom: 10px; right: 140px;">
+                                    <div v-if="selected == `Private` && filteredUsers == 0"
+                                        style="margin-top: 20px; width: 50px; position: absolute; bottom: 102px; right: 140px;">
                                         No users available
                                     </div>
 

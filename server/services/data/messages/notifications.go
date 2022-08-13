@@ -133,7 +133,7 @@ func GroupJoinReqNotif(currentConn *websocket.Conn, data ReceivedDataS) {
 	}
 
 	response.Content.Receiver = groupOwner
-	response.Content.Message = data.Content.Sender + " requested to join the group!"
+	response.Content.Message = data.Content.Sender + " requested to join a group!"
 	status := false
 
 	isGroup := 0

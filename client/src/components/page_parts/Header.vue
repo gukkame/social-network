@@ -28,9 +28,9 @@ import OneNotificationBoxVueComp from '../OneNotificationBox.vue';
   <div class="notificationDiv d-flex" v-if="displayNotificationHistory">
     <div class="chatwindow overflow-auto flex-wrap justify-content-space">
       <div class="chatwindowB d-flex flex-column">
-        <div v-if="this.notifcations == null" class="noNotifications d-flex justify-content-center align-items-center">
+        <div v-if="afterDataFetch == null" class="noNotifications d-flex justify-content-center align-items-center">
           No notifications available</div>
-        <div v-else v-for="notification in notifcations">
+        <div v-else v-for="notification in afterDataFetch">
             <OneNotificationBoxVueComp :data="notification" />
 
         </div>
@@ -90,15 +90,14 @@ export default {
   },
 
   computed: {
-    getNotifcationArray() {
-      if (!this.notifcations) {
-        this.$nextTick(() => {
-          if (this.notifcations) {
-            return this.notifcations.Notif
-          }
-        })
+      afterDataFetch() {
+        if (!this.notifcations) {
+          return null
+        }
+        if (this.notifcations) {
+          return this.notifcations
+        }
       }
-    }
   }
 }
 </script>
