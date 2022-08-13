@@ -25,7 +25,7 @@ import DeletePostComp from "../components/modals/DeletePost.vue"
                         <img v-else class="showpostProfileImg col" src="../assets/images/profile.svg" />
                     </div>
                     <div class="col posthDetails">
-                          <RouterLink :to="`/profile/${post.Username}`" style="text-decoration: none; width: 100%;"
+                        <RouterLink :to="`/profile/${post.Username}`" style="text-decoration: none; width: 100%;"
                             class="href">
                             <div class="col showpostUser followerLink">{{ post.Username }}</div>
                         </RouterLink>
@@ -113,7 +113,7 @@ import DeletePostComp from "../components/modals/DeletePost.vue"
                                                         <i class="bi bi-trash"></i></label>
                                                 </div>
                                                 <div class="d-flex align-items-center col" style="padding-top: 25px"
-                                                    v-if="file != null">{{ this.file.name }}
+                                                    v-if="file != null">{{  displayFile }}
                                                 </div>
                                             </div>
                                             <button class="comment-create">Comment</button>
@@ -191,14 +191,12 @@ export default {
         )
     },
 
-    updated() {
-
-    },
-
     methods: {
 
         handleFileUpload(event) {
-            this.file = event.target.files[0];
+            if (event) {
+                this.file = event.target.files[0];
+            }
         },
 
         deleteImage() {
@@ -230,12 +228,17 @@ export default {
                         this.post = res.data
                         this.Comments = res.data.Comments
                         this.post_user = res.data.User
-                        let bubble = this.$el.querySelector(".bubble22")
-                        if (bubble == null) {
-                            return
-                        }
 
-                        bubble.style.backgroundImage = `url('http://localhost:8080${this.post_user.Avatar_image}')`
+                        this.$nextTick(() => {
+                            let bubble = this.$el.querySelector(".bubble22")
+
+                            if (bubble == null) {
+                                return
+                            }
+
+                            bubble.style.backgroundImage = `url('http://localhost:8080${this.post_user.Avatar_image}')`
+                        })
+
 
                     })
                     .catch((error) => { });
@@ -283,7 +286,7 @@ export default {
                         this.errormsg = res.data.message
                         return
                     }
-                    this.Comments = res.data
+                    this.fetchData()
                 })
                 .catch((error) => { });
 
@@ -455,6 +458,12 @@ export default {
             }
 
             return true
+        },
+
+        displayFile() {
+            if (this.file != null) {
+                return this.file.name
+            }
         }
     },
 };

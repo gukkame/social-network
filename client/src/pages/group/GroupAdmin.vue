@@ -74,6 +74,11 @@ export default {
             await delay(100).then(() => {
                 axios.post("http://localhost:8080/group/join/requests", data, config)
                     .then((res) => {
+                        if (res.data.message === "Not Owner") {
+                            router.push("/groups")
+                        }
+
+
                         this.joinRequests = res.data
                     })
                     .catch((error) => { });

@@ -8,7 +8,7 @@ type AllEventData struct {
 	Event	Event	`json:"Event"`
 	Replies	[]EventReply	`json:"Replies"`
 }
-
+// Get All events in a group, has to be passed GroupID
 func Events(w http.ResponseWriter, r *http.Request) {
 	group := UnmarshalGroup(w, r)	
 

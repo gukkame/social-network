@@ -71,6 +71,8 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
 import $ from 'jquery'
+import { connectToWS, ws } from "../../common-js/messages.js";
+
 
 export default {
     props: {
@@ -156,6 +158,20 @@ export default {
                         removeAllAttrs(document.body);
                         $('body').css('overflow', 'auto');
                         return router.go(`"${currentRouter}"`)
+                    }
+                    let data1 = {
+                        Type: "NewEventNotif",
+                        Content: {
+                            Message: "Event has been created!",
+                            Sender: correctToken[1],
+                            IsGroup: parseInt(groupId[2]),
+                        },
+
+                    };
+                    ws.send(JSON.stringify(data1));
+                    if (ws.readyState === WebSocket.CLOSED) {
+                        clearInterval(this.timer);
+                        return;
                     }
                     this.errormsg = ""
                     $('body').removeClass('modal-open');

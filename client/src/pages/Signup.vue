@@ -134,7 +134,7 @@
                 <i class="formstar">*</i>
               </div>
               <Field class="form-input" :class="{ forminputerror: errors.password }" as="input" name="password"
-                value="Example123" type="password" placeholder="Example123" />
+                 type="password" placeholder="Example123" />
               <br />
               <span class="formErrors">{{ errors.password }}</span>
             </div>
@@ -144,7 +144,7 @@
                 <i class="formstar">*</i>
               </div>
               <Field class="form-input" :class="{ forminputerror: errors.passwordConfirmation }" as="input"
-                name="passwordConfirmation" value="Example123" type="password" placeholder="Example123" />
+                name="passwordConfirmation" type="password" placeholder="Example123" />
               <br />
               <span class="formErrors">{{ errors.passwordConfirmation }}</span>
             </div>
@@ -237,11 +237,11 @@ export default {
         .string()
         .matches(/^[aA-zZ\s]+$/, "Only characters are allowed")
         .required("Required")
-        .max(20, "Your last name must less than 20 characters"),
+        .max(20, "Your last name must be less than 20 characters"),
 
       nickname: yup
         .string()
-        .max(16, "Your nickname must less than 16 characters"),
+        .max(16, "Your nickname must be less than 16 characters"),
 
       aboutme: yup
         .string()

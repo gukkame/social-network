@@ -46,6 +46,8 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
 import $ from 'jquery'
+import {  ws } from "../../common-js/messages.js";
+
 
 export default {
     data() {
@@ -120,7 +122,6 @@ export default {
 
                     if (res.data.message === "User not authenticated") {
                         $('body').removeClass('modal-open');
-                        /* $('#staticBackdrop').hide() */
                         $('.modal-backdrop').hide()
                         async function removeAllAttrs(element) {
                             for (var i = element.attributes.length; i-- > 0;)
@@ -130,9 +131,24 @@ export default {
                         $('body').css('overflow', 'auto');
                         return router.push(`"${currentRouter}"`)
                     }
+
+                    let payload = {
+                        Type: "GroupInvNotif",
+                        Content: {
+                            Message: "Invite to group",
+                            Sender: correctToken[1],
+                            Receiver: values.name,
+                            IsGroup: parseInt(person[2]),
+                        },
+
+                    };
+                    ws.send(JSON.stringify(payload));
+                    if (ws.readyState === WebSocket.CLOSED) {
+                        clearInterval(this.timer);
+                        return;
+                    }
                     this.errormsg = ""
                     $('body').removeClass('modal-open');
-                    /* $('#staticBackdrop').hide() */
                     $('.modal-backdrop').hide()
                     async function removeAllAttrs(element) {
                         for (var i = element.attributes.length; i-- > 0;)
@@ -141,6 +157,7 @@ export default {
                     removeAllAttrs(document.body);
                     $('body').css('overflow', 'auto');
                     router.go(`"${currentRouter}"`)
+
 
                 })
                 .catch((error) => { });

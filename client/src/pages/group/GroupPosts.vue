@@ -82,7 +82,6 @@ export default {
                 axios.post("http://localhost:8080/group/posts", data, config)
                     .then((res) => {
                          this.posts = res.data
-                         console.log(this.posts)
                         
                     })
                     .catch((error) => { });

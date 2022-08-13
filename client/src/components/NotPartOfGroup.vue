@@ -24,6 +24,7 @@ import "bootstrap/dist/js/bootstrap.js"
 import axios from "axios"
 import { delay } from "../common-js/time.js";
 import router from "../router";
+import { connectToWS, ws } from "../common-js/messages.js";
 export default {
     props: {
         LoggedIn: {
@@ -69,6 +70,20 @@ export default {
 
                     if (res.data.message == "Profile does not exist") {
                         return router.push(`"${path}"`)
+                    }
+                    let payload = {
+                        Type: "GroupJoinReqNotif",
+                        Content: {
+                            Message: "Invite to group",
+                            Sender: correctToken[1],
+                            IsGroup: parseInt(groupId[2]),
+                        },
+
+                    };
+                    ws.send(JSON.stringify(payload));
+                    if (ws.readyState === WebSocket.CLOSED) {
+                        clearInterval(this.timer);
+                        return;
                     }
                     this.$emit('requestChanged', true)
                 })

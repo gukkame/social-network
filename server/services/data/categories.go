@@ -84,7 +84,6 @@ func GetOneCategory(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			err := rows.Scan(&obj.Id, &obj.Title, &obj.Description, &obj.Created_at, &obj.Privacy, &obj.Username, &obj.User_id, &obj.User_image, &obj.CategoryTitle)
 			if err != nil {
-				/* fmt.Println(err) */
 				w.Write([]byte(`{"message": "Post request failed"}`))
 				return
 			}
@@ -95,7 +94,6 @@ func GetOneCategory(w http.ResponseWriter, r *http.Request) {
 				row := db.DBC.QueryRow(query, obj.Id, userId)
 				err := row.Scan(&matches)
 				if err != nil {
-					/* fmt.Println(err) */
 					w.Write([]byte(`{"message": "Post request failed"}`))
 					return
 				}
@@ -111,7 +109,6 @@ func GetOneCategory(w http.ResponseWriter, r *http.Request) {
 				row := db.DBC.QueryRow(query, "following", userId, obj.User_id)
 				err := row.Scan(&matches)
 				if err != nil {
-					/* fmt.Println(err) */
 					w.Write([]byte(`{"message": "Post request failed"}`))
 					return
 				}
@@ -188,7 +185,6 @@ func GetAllCategorys(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "POST":
-		w.WriteHeader(http.StatusCreated)
 
 		var allcategory CategoriesPosts
 		existingData := []NeededData{}
@@ -213,7 +209,6 @@ func GetAllCategorys(w http.ResponseWriter, r *http.Request) {
 					row := db.DBC.QueryRow(query, obj.Id, userId)
 					err := row.Scan(&matches)
 					if err != nil {
-						/* fmt.Println(err) */
 						w.Write([]byte(`{"message": "Post request failed"}`))
 						return
 					}
@@ -229,7 +224,6 @@ func GetAllCategorys(w http.ResponseWriter, r *http.Request) {
 					row := db.DBC.QueryRow(query, "following", userId, obj.User_id)
 					err := row.Scan(&matches)
 					if err != nil {
-						/* fmt.Println(err) */
 						w.Write([]byte(`{"message": "Post request failed"}`))
 						return
 					}

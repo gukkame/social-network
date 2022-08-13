@@ -131,7 +131,6 @@ export default {
 
           if (res.data.message === "User not authenticated") {
             $('body').removeClass('modal-open');
-            /* $('#staticBackdrop').hide() */
             $('.modal-backdrop').hide()
             async function removeAllAttrs(element) {
               for (var i = element.attributes.length; i-- > 0;)
@@ -143,7 +142,6 @@ export default {
           }
           this.errormsg = ""
           $('body').removeClass('modal-open');
-          /* $('#staticBackdrop').hide() */
           $('.modal-backdrop').hide()
           async function removeAllAttrs(element) {
             for (var i = element.attributes.length; i-- > 0;)

@@ -90,8 +90,8 @@ func ValidNickName(nickname string) bool {
 	if nickname == "" {
 		return true
 	}
-	re := regexp.MustCompile(`^[A-Za-z0-9\s\.,;:!?()"'%\-]{3,16}$`)
-	return re.Match([]byte(nickname))
+	re := regexp.MustCompile(`^[A-Za-z0-9\s\.,;:!?()"'%\-]{1,16}$`)
+	return re.Match([]byte(nickname)) 
 }
 func ValidAboutMe(content string) bool {
 	if content == "" {

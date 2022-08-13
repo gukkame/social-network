@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 )
-
+// Gets Group info and the Current Users Status in the group
 func GroupInfoAndUserStatus(w http.ResponseWriter, r *http.Request) {
 	group := UnmarshalGroup(w, r)
 
@@ -60,9 +60,21 @@ func CancelJoinRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
-
+// Returns all current pending join request to a group
 func ListJoinRequests(w http.ResponseWriter, r *http.Request) {
-	group := UnmarshalGroup(w, r)
+	group := UnmarshalGroup(w, r)	
+	userId := UserId(w, r)
+
+	status, err := group.UserRequestStatus(userId)
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf(`{"message":"%s"}`, err)))
+		return
+	}
+
+	if status != "Owner" {
+		w.Write([]byte(`{"message":"Not Owner"}`))
+		return
+	}
 
 	requests, err := group.GetAllJoinRequests()
 	if err != nil {
@@ -123,7 +135,6 @@ func LeaveGroup(w http.ResponseWriter, r *http.Request) {
 
 func InviteToGroup(w http.ResponseWriter, r *http.Request) {
 	invite := UnmarshalInvite(w, r)
-	// senderId := UserId(w, r)
 
 	user, err := GetUserByUsername(invite.Username)
 	if err != nil {
@@ -165,16 +176,6 @@ func InviteToGroup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// var notification Notification
-	// notification.Type = "Invitation"
-	// notification.RecipientId = member.User_id
-	// notification.UserId = senderId
-
-	// err = notification.Insert()
-	// if err != nil {
-	// 	w.Write([]byte(fmt.Sprintf(`{"message":"%s"}`, err)))
-	// 	return
-	// }
 
 	w.WriteHeader(http.StatusOK)
 }

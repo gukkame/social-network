@@ -29,6 +29,8 @@ import "bootstrap/dist/js/bootstrap.js"
 import axios from "axios"
 import { delay } from "../common-js/time.js";
 import router from "../router";
+import { connectToWS, ws } from "../common-js/messages.js";
+
 export default {
     props: {
         LoggedIn: {
@@ -90,7 +92,18 @@ export default {
 
                         if (res.data.message == "Requested") {
                             this.notRequested = false
-                            this.Requested = true
+                            this.Requested = true 
+                            let payload = {
+                                Type: "following",
+                                User1: correctToken[1],
+                                User2: person[2],
+                            };
+
+                            if (ws.readyState === WebSocket.CLOSED) {
+                                clearInterval(this.timer);
+                                return;
+                            }
+                            ws.send(JSON.stringify(payload));
                             return
                         }
 

@@ -76,14 +76,6 @@ const router = createRouter({
       component: () => import('../pages/group/ShowGroupPost.vue')
     },
 
-    {
-      path: "/messenger",
-      name: "messenger",
-      component: () => import("../pages/Messenger.vue")
-    },
-    
-
-
     //CATEGORIES
     {
       path: '/Go',

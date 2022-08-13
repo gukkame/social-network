@@ -96,7 +96,7 @@ import PageNotFoundComp from "../PageNotFound.vue"
                                                     <i class="bi bi-trash"></i></label>
                                             </div>
                                             <div class="d-flex align-items-center col" style="padding-top: 25px"
-                                                v-if="file != null">{{ this.file.name }}
+                                                v-if="file != null">{{ displayFile }}
                                             </div>
                                         </div>
                                         <button class="comment-create">Comment</button>
@@ -434,6 +434,12 @@ export default {
             }
 
             return true
+        },
+
+        displayFile() {
+            if (this.file != null) {
+                return this.file.name
+            }
         }
     },
 };

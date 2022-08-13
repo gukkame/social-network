@@ -7,14 +7,18 @@ import (
 	"log"
 	"net/http"
 	db "real-time-forum/server/db"
-	ath "real-time-forum/server/services/authentication"
 	mw "real-time-forum/server/middleware"
+	ath "real-time-forum/server/services/authentication"
 	"strings"
 )
 
 type Follower struct {
 	Username     string
 	Avatar_image string
+}
+type Message struct {
+	Type string
+	Msg  string
 }
 
 type FollowerPackage struct {
@@ -220,7 +224,6 @@ func getFollowers(browsed string, status string) (FollowerPackage, error) {
 	defer row7.Close()
 	var FollowReqs []Follower
 	for row7.Next() {
-		fmt.Println("1")
 		var reciID ExistingUserS
 		err := row7.Scan(
 			&reciID.Id,
@@ -251,7 +254,7 @@ func getFollowers(browsed string, status string) (FollowerPackage, error) {
 
 }
 
-//CHECKING IF PERSON IS FOLLOWER OR NOT
+
 func CheckFollower(token string, browsed string) bool {
 	var browsedId ExistingUserS
 	row7, _ := db.DBC.Query("SELECT id FROM Users WHERE username = ?", browsed)
@@ -305,6 +308,7 @@ func PerformFollow(w http.ResponseWriter, r *http.Request) {
 		var browsed LogInS
 		json.Unmarshal([]byte(reqBody), &browsed)
 
+
 		if !ath.AuthUser(token) {
 			w.Write([]byte(`{"message": "User not authenticated"}`))
 			return
@@ -354,6 +358,7 @@ func PerformFollow(w http.ResponseWriter, r *http.Request) {
 		if profile_status.Username == "private" {
 			if CheckFollower(token, browsed.Username) {
 				err := deleteFollower(token, browsed.Username)
+
 				if err != nil {
 					w.Write([]byte(`{"message": "Profile does not exist"}`))
 					return
@@ -364,11 +369,14 @@ func PerformFollow(w http.ResponseWriter, r *http.Request) {
 					w.Write([]byte(`{"message": "Profile does not exist"}`))
 					return
 				}
+
+				w.Write([]byte(`{"notification": "Profile does not exist"}`))
 			}
 		}
 
 	}
 }
+
 
 //FOR OWNER TO ACCEPT A FOLLOW REQUEST AT PROFILE
 func AcceptFollower(w http.ResponseWriter, r *http.Request) {
@@ -424,13 +432,12 @@ func AcceptFollower(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		
 		stmt3, err := db.DBC.Prepare(`UPDATE Followers SET status = ? WHERE status = ? AND follower_id = ? AND recipient_id = ?`)
 		if err != nil {
 			w.Write([]byte(`{"message": "Malicious user detected"}`))
 			return
 		}
-		stmt3.Exec("following","requested", browsedId.Id, followerId.Id)
+		stmt3.Exec("following", "requested", browsedId.Id, followerId.Id)
 		defer stmt3.Close()
 
 	}
@@ -499,7 +506,6 @@ func RemoveFollower(w http.ResponseWriter, r *http.Request) {
 		stmt.Exec(browsedId.Id, followerId.Id)
 	}
 }
-
 //TO DELETE USERS FOLLOWING TO A PERSON IF THEY ARE ALREADY FOLLOWING
 func deleteFollower(token string, browsed string) error {
 	var browsedId ExistingUserS
@@ -576,6 +582,50 @@ func addFollower(token string, browsed string, profile_status string) error {
 	return err
 }
 
+//TO DELETE USERS FOLLOWING TO A PERSON IF THEY ARE ALREADY FOLLOWING
+// func deleteFollower(user string, user2 string) error {
+// 	userId, err := GetUserId(user)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	userId2, err := GetUserId(user2)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+
+// 	stmt, err := db.DBC.Prepare(`DELETE FROM Followers WHERE follower_id = ? AND recipient_id = ?`)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	defer stmt.Close()
+// 	stmt.Exec(userId, userId2)
+// 	return err
+// }
+
+// func addFollower(user string, user2 string, profile_status string) error {
+// 	userId, err := GetUserId(user)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	userId2, err := GetUserId(user2)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	stmt, err := db.DBC.Prepare(`INSERT INTO Followers VALUES(?, datetime('now'), ?, ?)`)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	defer stmt.Close()
+// 	if profile_status == "public" {
+// 		stmt.Exec("following", userId, userId2)
+// 	} else {
+// 		stmt.Exec("requested", userId, userId2)
+// 	}
+// 	return err
+// }
+
 //TO CHECK IF USER1 HAS REQUESTED TO FOLLOW USER2
 func CheckFollowRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -648,7 +698,7 @@ func CheckFollowRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//CANCEL FOLLOW REQUEST 
+//CANCEL FOLLOW REQUEST
 func CancelFollowRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	mw.SetupCORS(&w, r)

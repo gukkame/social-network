@@ -69,7 +69,6 @@ export default {
 
     methods: {
         async eventGoing() {
-            console.log('here')
             let token = document.cookie
             let correctToken = token.split(":")
             let config = {

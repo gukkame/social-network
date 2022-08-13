@@ -9,7 +9,6 @@ import (
 	ath "real-time-forum/server/services/authentication"
 	groups "real-time-forum/server/services/data/groups"
 	val "real-time-forum/server/services/validation"
-	"reflect"
 	"strings"
 )
 
@@ -85,7 +84,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	err := r.ParseMultipartForm(32 << 0) // maxMemory 32MB
 	if err != nil {
-		fmt.Println("max memory", err)
 		w.Write([]byte(`{"message": "Malicious user detected"}`))
 		return
 	}
@@ -104,14 +102,12 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	newPost.Image = imagePath
 
 	if !val.ValidatePostData(newPost.Title, newPost.Description) {
-		fmt.Println("validatoin", err)
 		w.Write([]byte(`{"message": "Malicious user detected"}`))
 		return
 	}
 
 	row, err := db.DBC.Query("SELECT id FROM Categories WHERE title = ?", newPost.Categoryname)
 	if err != nil {
-		fmt.Println("category name", err)
 		w.Write([]byte(`{"message": "Malicious user detected"}`))
 		return
 	}
@@ -123,7 +119,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 			&existingCategory.Id,
 		)
 		if err != nil {
-			fmt.Println("scan category id", err)
 			w.Write([]byte(`{"message": "Malicious user detected"}`))
 			return
 		}
@@ -131,7 +126,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	row1, err := db.DBC.Query("SELECT id FROM Users INNER JOIN Sessions ON Sessions.user_id = Users.id WHERE token = ?", token)
 	if err != nil {
-		fmt.Println("get sessoin", err)
 		w.Write([]byte(`{"message": "Malicious user detected"}`))
 		return
 	}
@@ -143,7 +137,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 			&existingUser.Id,
 		)
 		if err != nil {
-			fmt.Println("scan user id ", err)
 			w.Write([]byte(`{"message": "Malicious user detected"}`))
 			return
 		}
@@ -151,7 +144,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	stmt, err := db.DBC.Prepare(`INSERT INTO Posts(title, content, image, privacy, created_at, category_id, user_id) VALUES(?, ?, ?, ?, datetime("now"), ?, ?)`)
 	if err != nil {
-		fmt.Println("prepare post query", err)
 		w.Write([]byte(`{"message": "Malicious user detected"}`))
 		return
 	}
@@ -159,13 +151,11 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	result, err := stmt.Exec(newPost.Title, newPost.Description, newPost.Image, newPost.Privacy, existingCategory.Id, existingUser.Id)
 	if err != nil {
-		fmt.Println(err)
 		w.Write([]byte(fmt.Sprintf(`{"message":"%s"}`, err)))
 		return
 	}
 	res, err := result.LastInsertId()
 	if err != nil {
-		fmt.Println("get last post id", err)
 		w.Write([]byte(`{"message": "Malicious user detected"}`))
 		return
 	}
@@ -176,16 +166,12 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	stmt.Exec(userId, res)
-	fmt.Println(newPost.AllowedUsers)
-	fmt.Println(reflect.TypeOf(newPost.AllowedUsers[0]))
 	if newPost.AllowedUsers[0] != "null" {
 		for _, username := range newPost.AllowedUsers {
 			var userId int
-			fmt.Println(username)
 			row1 := db.DBC.QueryRow("SELECT id FROM Users WHERE username = ?", username)
 			err := row1.Scan(&userId)
 			if err != nil {
-				fmt.Println(err)
 				w.Write([]byte(`{"message": "Malicious user detected"}`))
 				return
 			}
@@ -300,7 +286,6 @@ func GetOnePost(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 
-	userId := groups.UserId(w, r)
 
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -315,8 +300,7 @@ func GetOnePost(w http.ResponseWriter, r *http.Request) {
 		groups.SendResponse(w, emptyPost)
 		return
 	}
-
-	allPostData.User, err = groups.GetUserById(userId)
+	allPostData.User, err = groups.GetUserById(allPostData.User_id)
 	if err != nil {
 		w.Write([]byte(`{"message": "Post request failed"}`))
 		return
@@ -328,14 +312,14 @@ func GetOnePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for index := range allPostData.Comments {
+	for index, comment := range allPostData.Comments {
 		allPostData.Comments[index].Likes, err = allPostData.Comments[index].DbGetAllVotes()
 		if err != nil {
 			w.Write([]byte(`{"message": "Post request failed"}`))
 			return
 		}
 
-		allPostData.Comments[index].User, err = groups.GetUserById(userId)
+		allPostData.Comments[index].User, err = groups.GetUserById(comment.User_id)
 		if err != nil {
 			w.Write([]byte(`{"message": "Post request failed"}`))
 			return
@@ -354,8 +338,8 @@ func GetOnePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (data OnePostS) DbGetPost() (post NeededData, err error) {
-	row := db.DBC.QueryRow("SELECT Posts.id, Posts.title, Posts.image, Posts.content, Posts.created_at, Posts.privacy, Users.username, Categories.title AS category_title FROM Posts INNER JOIN Users ON Users.id = Posts.user_id INNER JOIN Categories ON Categories.id = Posts.category_id WHERE Posts.id = ? AND Categories.title = ?", data.Postid, data.Categoryname)
-	err = row.Scan(&post.Id, &post.Title, &post.Image, &post.Description, &post.Created_at, &post.Privacy, &post.Username, &post.CategoryTitle)
+	row := db.DBC.QueryRow("SELECT Posts.id, Posts.title, Posts.image, Posts.content, Posts.created_at, Posts.privacy, Users.username, Users.id, Categories.title AS category_title FROM Posts INNER JOIN Users ON Users.id = Posts.user_id INNER JOIN Categories ON Categories.id = Posts.category_id WHERE Posts.id = ? AND Categories.title = ?", data.Postid, data.Categoryname)
+	err = row.Scan(&post.Id, &post.Title, &post.Image, &post.Description, &post.Created_at, &post.Privacy, &post.Username, &post.User_id, &post.CategoryTitle)
 	if err != nil {
 		return post, err
 	}

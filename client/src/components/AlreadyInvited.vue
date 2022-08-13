@@ -95,7 +95,7 @@ export default {
                     if (res.data.message == "Profile does not exist") {
                         return router.push(`"${path}"`)
                     }
-                    this.$emit('requestChanged', true)
+                     this.$emit('inviteChanged', true)
 
                 })
                 .catch((error) => { });

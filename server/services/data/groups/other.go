@@ -45,7 +45,7 @@ func GetGroupInfo(group Group) (Group, error) {
 	}
 	return group, nil
 }
-
+// Returns "Owner", "Member", "invited", "Requested" or "Not Requested"
 func (group Group) GetUserStatus(r *http.Request) (string, error) {
 	reqHeader := r.Header.Get("header1")
 	if len(reqHeader) == 0 {

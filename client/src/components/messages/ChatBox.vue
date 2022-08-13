@@ -1,174 +1,210 @@
 <script setup>
-import ChatBoxUserCompO from "./ChatBoxUserO.vue"
+import ChatBoxUserCompO from "./ChatBoxUserO.vue";
+import ChatBoxUserCompOf from "./ChatBoxUserOf.vue";
+import ChatBoxGroups from "./ChatBoxGroups.vue";
 </script>
 
 <template>
-    <div class="chatwindowdiv  d-flex">
-        <div class="chatwindow overflow-auto flex-wrap justify-content-space">
-            <div class="chatwindowH d-flex justify-content-center align-items-center">
-                Messenger
-            </div>
-            <div class="chatwindowB d-flex flex-column">
-                <div class="chatwindowA  d-flex justify-content-center align-items-center flex-row">Active users
-                    ({{ amountofClients }})
-                </div>
-                <div v-for="clients in { realAmountofUsers }">
-                    <div v-for="username in clients" :key="username.Username">
-                        <ChatBoxUserCompO :data="username" />
-                    </div>
-                </div>
-            </div>
+  <div class="chatwindowdiv d-flex">
+    <div class="chatwindow overflow-auto flex-wrap justify-content-space">
+      <div class="chatwindowH d-flex justify-content-center align-items-center">
+        Messenger
+      </div>
+      <div class="chatwindowB d-flex flex-column">
+        <div class="chatwindowA d-flex justify-content-center align-items-center flex-row">
+          Active users ({{ onlineUsers }})
         </div>
+        <div v-for="clients in { listOnlineUsers }">
+          <div v-for="username in clients" :key="username.Username">
+            <ChatBoxUserCompO :data="username" />
+          </div>
+        </div>
+        <div class="chatwindowA d-flex justify-content-center align-items-center flex-row">
+          Offline ({{ offlineUsers }})
+        </div>
+
+
+        <div v-for="clients in { listOfflineUsers }">
+          <div v-for="username in clients" :key="username.Username">
+            <ChatBoxUserCompOf :data="username" />
+          </div>
+        </div>
+        <div class="chatwindowA d-flex justify-content-center align-items-center flex-row">
+          Groups ({{ groups }})
+        </div>
+        <div v-for="group in { listGroups }">
+          <div v-for="name in group" :key="name.Name">
+
+            <ChatBoxGroups :data="name" />
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
-import _ from 'lodash';
-import { connectToWS, ws } from "../../common-js/messages.js"
+import _, { intersection } from "lodash";
+import { ws } from "../../common-js/messages.js";
+
 
 export default {
+  data() {
+    return {
+      onlineUsers: 0,
+      offlineUsers: 0,
+      groups: 0,
+      users: [],
+      allgroups: [],
+      timer: null,
+    };
+  },
+  props: {
+    data: {
+      type: Object,
 
-    data() {
-        return {
-            users: [],
-            timer: null,
-        }
+    },
+  },
+
+  mounted: function () {
+    ws.addEventListener("message", (event) => {
+      this.handleUsers(event);
+    });
+
+    this.timer = window.setInterval(() => {
+      this.getAllUser();
+      this.getAllGroups();
+    }, 1500);
+  },
+
+  methods: {
+    getAllUser() {
+      let payload = {
+        Type: "allClients",
+      };
+      if (ws.readyState === WebSocket.CLOSED) {
+        clearInterval(this.timer);
+        return;
+      }
+      ws.send(JSON.stringify(payload));
+    },
+    getAllGroups() {
+      let payload = {
+        Type: "allGroups",
+      };
+      if (ws.readyState === WebSocket.CLOSED) {
+        clearInterval(this.timer);
+        return;
+      }
+      ws.send(JSON.stringify(payload));
     },
 
-    beforeMount() {
-        connectToWS()
+    handleUsers(event) {
+      let incomingData = JSON.parse(event.data.toString());
+      if (incomingData.Type == "allClients") {
+        this.users = incomingData.Clients;
+      }
+      if (incomingData.Type == "allGroups") {
+        this.allgroups = incomingData.Groups;
+      }
     },
+  },
 
-    mounted: function () {
-        ws.addEventListener('message', (event) => { this.handleUsers(event) });
-        this.timer = window.setInterval(() => {
-            this.getAllUser();
-        }, 1500)
+  computed: {
+    listOnlineUsers() {
+      if (this.users.Clients == undefined) {
+        return;
+      }
+      let correctToken = document.cookie.split(":");
+      if (this.users != null) {
+        let filtered = this.users.Clients.filter(
+          (user) => user.Username != correctToken[1]
+        );
+        let filtered1 = filtered.filter((user) => user.Status == "1");
+        this.onlineUsers = filtered1.length;
+        let allUsersO = _.orderBy(filtered1, ["LastMessage", "Username"], ["asc", "asc"]);
+        return allUsersO;
+      }
     },
-
-    methods: {
-        getAllUser() {
-            let payload = {
-                "Type": "allClients"
-            }
-            if (ws.readyState === WebSocket.CLOSED) {
-                clearInterval(this.timer)
-                return
-            }
-            ws.send(JSON.stringify(payload));
-        },
-
-        handleUsers(event) {
-            let incomingData = JSON.parse(event.data.toString());
-            if (incomingData.Type == "allClients") {
-                this.users = incomingData.Clients
-            }
-        }
+    listOfflineUsers() {
+      if (this.users.Clients == undefined) {
+        return;
+      }
+      let correctToken = document.cookie.split(":");
+      if (this.users != null) {
+        let filtered = this.users.Clients.filter(
+          (user) => user.Username != correctToken[1]
+        );
+        let filtered1 = filtered.filter((user) => user.Status == "0");
+        this.offlineUsers = filtered1.length;
+        let allUsersO = _.orderBy(filtered1, ["LastMessage", "Username"], ["asc", "asc"]);
+        return allUsersO;
+      }
     },
-
-    computed: {
-        amountofClients() {
-            if (this.users.Clients == undefined) {
-                return 0
-            } else {
-                return this.users.Clients.length
-            }
-        },
-        realAmountofUsers() {
-            if (this.users.Clients == undefined) {
-                return
-            }
-            let correctToken = document.cookie.split(":")
-            let array = this.users.Clients
-
-            let newArray = array.filter((item) => item.Username != correctToken[1]);
-            if (newArray.some(e => e.LastMessage.length != 0)) {
-                let times = newArray.filter((item) => item.LastMessage != "no date");
-
-                times.sort(function compare(a, b) {
-                    var dateA = new Date(a.LastMessage);
-                    var dateB = new Date(b.LastMessage);
-                    return dateA - dateB;
-                });
-                times.reverse()
-                let timesNull = newArray.filter((item) => item.LastMessage == "no date");
-                newArray = [...times, ...timesNull];
-
-            } else {
-                newArray.sort((a, b) => {
-                    let fa = a.Username.toLowerCase(),
-                        fb = b.Username.toLowerCase();
-
-                    if (fa < fb) {
-                        return -1;
-                    }
-                    if (fa > fb) {
-                        return 1;
-                    }
-                    return 0;
-                });
-            }
-
-            return this.users.Clients = newArray
-        }
-    }
-}
+    listGroups() {
+      if (this.allgroups.Groups == undefined) {
+        return;
+      }
+      if (this.allgroups != null) {
+        this.groups = this.allgroups.Groups.length;
+        return this.allgroups.Groups;
+      }
+    },
+  },
+};
 </script>
-
-
 
 <style>
 .chatwindowA {
-    border-bottom: solid 1px rgb(219, 219, 219);
+  border-bottom: solid 1px rgb(219, 219, 219);
 }
 
 .chatwindowO {
-    margin-top: 10px;
-    border-bottom: solid 1px rgb(219, 219, 219);
+  margin-top: 10px;
+  border-bottom: solid 1px rgb(219, 219, 29);
 }
 
 .activityDot {
-    border-radius: 50%;
-    width: 15px;
-    height: 15px;
-    background-color: #00FF7F;
-    border: solid 1px rgb(219, 219, 219);
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  background-color: #00ff7f;
+  border: solid 1px rgb(219, 219, 219);
 }
 
 .chatwindowdiv {
-    position: fixed;
-    bottom: 69px;
-    right: 48px;
-    z-index: 999;
-    transition: 0.5s;
-    max-width: 220px;
-    width: 220px;
-    height: 57%;
+  position: fixed;
+  bottom: 69px;
+  right: 48px;
+  z-index: 999;
+  transition: 0.5s;
+  max-width: 220px;
+  width: 220px;
+  height: 57%;
 }
 
 .chatwindow {
-    box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
-    border-radius: 6px;
-    /*  background-color: blue; */
-    width: 100%;
-    height: 100%;
-    border: solid 1px rgb(219, 219, 219);
-    transition: 0.5s;
-    background-color: rgb(253, 252, 252);
-
+  box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
+  border-radius: 6px;
+  /*  background-color: blue; */
+  width: 100%;
+  height: 100%;
+  border: solid 1px rgb(219, 219, 219);
+  transition: 0.5s;
+  background-color: rgb(253, 252, 252);
 }
 
 .chatwindowH {
-    width: 100%;
-    height: 50px;
-    /*  background-color: green; */
-    border-radius: 6px 6px 0px 0px;
-    font-size: 24px;
-    border-bottom: solid 1px rgb(219, 219, 219);
-    margin-bottom: 10px;
+  width: 100%;
+  height: 50px;
+  /*  background-color: green; */
+  border-radius: 6px 6px 0px 0px;
+  font-size: 24px;
+  border-bottom: solid 1px rgb(219, 219, 219);
+  margin-bottom: 10px;
 }
 
 .chatwindowB {
-    width: 100%;
+  width: 100%;
 }
 </style>

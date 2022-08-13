@@ -32,29 +32,35 @@ func main() {
 	http.HandleFunc("/groups", mid.CORS(ds.GetGroups))
 	http.HandleFunc("/group", mid.CORS(groups.GroupInfoAndUserStatus))
 	http.HandleFunc("/creategroup", mid.CORS(ds.NewGroup))
+
 	// # Group Posts
 	http.HandleFunc("/group/posts", mid.CORS(mid.Auth(groups.Posts)))
 	http.HandleFunc("/group/post", mid.CORS(mid.Auth(groups.PostInfo)))
 	http.HandleFunc("/group/post/new", mid.CORS(mid.Auth(groups.NewPost)))
 	http.HandleFunc("/group/post/like", mid.CORS(mid.Auth(groups.LikePost)))
 	http.HandleFunc("/group/post/dislike", mid.CORS(mid.Auth(groups.DislikePost)))
+
 	// # # Group Post Comments
 	http.HandleFunc("/group/post/comment/new", mid.CORS(mid.Auth(groups.NewComment)))
 	http.HandleFunc("/group/post/comment/like", mid.CORS(mid.Auth(groups.LikeComment)))
 	http.HandleFunc("/group/post/comment/dislike", mid.CORS(mid.Auth(groups.DislikeComment)))
+
 	// # Group Events
 	http.HandleFunc("/group/events", mid.CORS(mid.Auth(groups.Events)))
 	http.HandleFunc("/group/event/new", mid.CORS(mid.Auth(groups.NewEvent)))
 	http.HandleFunc("/group/event/going", mid.CORS(mid.Auth(groups.ReplyGoingEvent)))
 	http.HandleFunc("/group/event/notgoing", mid.CORS(mid.Auth(groups.ReplyNotGoingEvent)))
+
 	// # Invites to Group
 	http.HandleFunc("/group/invite", mid.CORS(mid.Auth(groups.InviteToGroup)))
 	http.HandleFunc("/group/invite/accept", mid.CORS(mid.Auth(groups.AcceptGroupInvite)))
 	http.HandleFunc("/group/invite/deny", mid.CORS(mid.Auth(groups.DenyGroupInvite)))
+
 	// # Join Request to Group
 	http.HandleFunc("/group/join", mid.CORS(mid.Auth(groups.MakeJoinRequest)))
 	http.HandleFunc("/group/join/cancel", mid.CORS(mid.Auth(groups.CancelJoinRequest)))
 	http.HandleFunc("/group/leave", mid.CORS(mid.Auth(groups.LeaveGroup)))
+	
 	// # # Have to be owner to access these 3
 	http.HandleFunc("/group/join/deny", mid.CORS(mid.Auth(groups.DenyJoinRequest)))
 	http.HandleFunc("/group/join/accept", mid.CORS(mid.Auth(groups.AcceptJoinRequest)))

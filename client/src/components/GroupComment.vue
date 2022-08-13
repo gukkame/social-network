@@ -96,7 +96,6 @@ export default {
         dislikeComment(Id) {
             let token = document.cookie
             let correctToken = token.split(":")
-            let currentRouter = this.$route.path
 
             if (token.length === 0) {
                 return router.push("/login")

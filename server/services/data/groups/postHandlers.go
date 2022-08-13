@@ -19,6 +19,10 @@ type AllCommentData struct {
 	Likes []Like
 }
 
+type ReplyPost struct {
+	Id	int64
+}
+// Return all groups posts and other info about the posts
 func Posts(w http.ResponseWriter, r *http.Request) {
 	group := UnmarshalGroup(w, r)
 
@@ -69,7 +73,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	}
 	SendResponse(w, responseData)
 }
-
+// Creates a new post in a group
 func NewPost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(32 << 0) // maxMemory 32MB
 	if err != nil {
@@ -96,21 +100,16 @@ func NewPost(w http.ResponseWriter, r *http.Request) {
 
 	post.Image = imagePath
 
-	err = post.Insert()
+	var replyPost ReplyPost
+	replyPost.Id, err = post.Insert()
 	if err != nil {
 		w.Write([]byte(`{"message":"Post request failed"}`))
 		return
 	}
 
-	post, err = GetMostRecentPost()
-	if err != nil {
-		w.Write([]byte(`{"message":"Post request failed"}`))
-		return
-	}
-
-	SendResponse(w, post)
+	SendResponse(w, replyPost)
 }
-
+// Gets all info about one post including user, comments (and it's likes and users) and likes
 func PostInfo(w http.ResponseWriter, r *http.Request) {
 	post := UnmarshalPost(w, r)
 
@@ -156,7 +155,6 @@ func PostInfo(w http.ResponseWriter, r *http.Request) {
 
 	// Get All Post Comment Likes And Comment Users
 	for index, comment := range allPostData.Comments {
-		// var allCommentData AllCommentData
 		likes, err := comment.GetAllLikes()
 		if err != nil {
 			w.Write([]byte(fmt.Sprintf(`{"message":"%s"}`, err)))
@@ -178,7 +176,6 @@ func PostInfo(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte(fmt.Sprintf(`{"message":"%s"}`, err)))
 				return
 			}
-			// like.Username = user.Username
 			allPostData.Comments[index].Likes[likeIndex].Username = user.Username
 		}
 	}	

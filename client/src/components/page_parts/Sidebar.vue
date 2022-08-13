@@ -27,14 +27,6 @@
                 </RouterLink>
 
             </li>
-            <li v-if="LoggedIn">
-                <RouterLink :to="{ name: 'messenger' }" class="href">
-                    <i class="bi bi-chat-dots-fill fa"></i>
-                    <span class="nav-text">
-                        Messenger
-                    </span>
-                </RouterLink>
-            </li>
         </ul>
 
         <ul class="logout" v-if="LoggedIn">
@@ -55,6 +47,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import "bootstrap/dist/js/bootstrap.js"
 import router from "../../router";
+import { closeWsConnection } from "../../common-js/messages.js";
 export default {
 
     name: 'Header',
@@ -68,6 +61,7 @@ export default {
     methods: {
         logOut() {
             document.cookie = 'Token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            closeWsConnection()
             router.go("/")
         }
     },

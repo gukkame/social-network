@@ -168,15 +168,23 @@ func (group Group) GetAllPosts() (posts []Post, err error) {
 	return posts, err
 }
 
-func (post Post) Insert() (err error) {
+func (post Post) Insert() (postId int64, err error) {
 	stmt, err := db.DBC.Prepare(`INSERT INTO Group_posts (title, content, image, created_at, group_id, user_id) VALUES (?, ?, ?, datetime("now"), ?, ?)`)
 	if err != nil {
-		return err
+		return postId, err
 	}
 	defer stmt.Close()
 
-	stmt.Exec(post.Title, post.Content, post.Image, post.Group_id, post.User_id)
-	return nil
+	result, err := stmt.Exec(post.Title, post.Content, post.Image, post.Group_id, post.User_id)
+	if err != nil {
+		return postId, err
+	}
+	
+	postId, err = result.LastInsertId()
+	if err != nil {
+		return postId, err
+	}
+	return postId, nil
 }
 
 func (post Post) CountComments() (amount int, err error) {
@@ -375,7 +383,7 @@ func (like *Like) DeleteCommentVote() (err error) {
 }
 
 func (group Group) GetAllEvents() (events []Event, err error) {
-	query := "SELECT id, title, content, happening_at, created_at, group_id, user_id FROM Group_events WHERE group_id = ?"
+	query := `SELECT id, title, content, happening_at, created_at, group_id, user_id FROM Group_events WHERE group_id = ? AND happening_at > datetime("now") ORDER BY happening_at ASC`
 	rows, err := db.DBC.Query(query, group.Group_id)
 	if err != nil {
 		return nil, err

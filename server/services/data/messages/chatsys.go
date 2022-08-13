@@ -14,6 +14,8 @@ type ContentS struct {
 	Sender   string
 	Receiver string
 	Datetime string
+	IsGroup  int
+	Image    string
 }
 
 type ReceivedDataS struct {
@@ -22,6 +24,7 @@ type ReceivedDataS struct {
 	User1    string
 	User2    string
 	MsgCount int
+	Group    bool
 }
 
 //WEBSOCKET CONNECTION UPGRADER
@@ -44,12 +47,38 @@ func ListenToMsgs(conn *websocket.Conn) {
 				break
 			}
 
+			//Notifications
+			if newMessage.Type == "following" {
+				FollowNotif(conn, newMessage.User1, newMessage.User2)
+			}
+			if newMessage.Type == "GroupInvNotif" {
+				GroupInvNotif(conn, newMessage)
+			}
+			if newMessage.Type == "GroupJoinReqNotif" {
+				GroupJoinReqNotif(conn, newMessage)
+			}
+			if newMessage.Type == "NewEventNotif" {
+				EventCreatedNotif(conn, newMessage)
+			}
+			if newMessage.Type == "allNotifications" {
+				err := ListAllNotif(conn)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+
+			//Chat system
 			if newMessage.Type == "allClients" {
 				err := ListAllClients(conn)
 				if err != nil {
 					fmt.Println(err)
 				}
-
+			}
+			if newMessage.Type == "allGroups" {
+				err := ListAllGroups(conn)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 
 			if newMessage.Type == "closeClient" {
@@ -61,17 +90,25 @@ func ListenToMsgs(conn *websocket.Conn) {
 			if newMessage.Type == "privateMSG" {
 				SendMessage(conn, newMessage)
 			}
-
-			if newMessage.Type == "initialMessageHistory" {
-				GetPreviousMessages(conn, newMessage.MsgCount, newMessage.User1, newMessage.User2, newMessage.Type)
+			if newMessage.Type == "groupMSG" {
+				SendGroupMessage(conn, newMessage)
 			}
 
 			if newMessage.Type == "messageHistory" {
 				GetPreviousMessages(conn, newMessage.MsgCount, newMessage.User1, newMessage.User2, newMessage.Type)
 			}
 
+			if newMessage.Type == "messageHistoryGroup" {
+				GetPrevMsgGroup(conn, newMessage.MsgCount, newMessage.User1, newMessage.User2, newMessage.Type)
+			}
+
 			if newMessage.Type == "typing" {
-				TypingInProgress(newMessage)
+				for _, user := range allClients.Clients {
+					if user.Username == newMessage.User2 && user.Status == "1" {
+						TypingInProgress(newMessage)
+					}
+				}
+
 			}
 		}
 	}()

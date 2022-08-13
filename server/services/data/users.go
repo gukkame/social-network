@@ -74,6 +74,7 @@ type NeverReleasedData struct {
 type LogInS struct {
 	Username string
 	Password string
+	Status   string
 }
 
 type UsernameS struct {

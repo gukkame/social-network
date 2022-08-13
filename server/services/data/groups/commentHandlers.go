@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 )
-
 func NewComment(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(32 << 0) // maxMemory 32MB
 	if err != nil {

@@ -5,7 +5,8 @@ import MessageComp from "./MessageBox.vue"
 <template>
     <div class="chatwindowPerson d-flex" @click="toggleMessenger">
         <div>
-            <img class="chatwindowImg col" src="../../assets/images/profile.svg" />
+            <img v-if="data.Avatar_image == ``" class="bubble3 col" src="../../assets/images/profile.svg" />
+            <div v-else v-bind:id="data.Username" class="bubble3 col-2"></div>
         </div>
         <div class="col messageDetails justify-content-start">
             <div class="col-10 chatwindowUser">{{ data.Username }}</div>
@@ -18,7 +19,7 @@ import MessageComp from "./MessageBox.vue"
             <div class="activityDot"></div>
         </div>
     </div>
-    <MessageComp :data="data.Username" v-if="messageWindowStatus" />
+    <MessageComp :data=data v-if="messageWindowStatus" />
 </template>
 
 <script>
@@ -34,11 +35,18 @@ export default {
     },
     data() {
         return {
+            notification: false,
+            img: "",
             messageWindowStatus: false
         }
     },
 
     mounted: function () {
+        let bubble = document.getElementById(this.data.Username)
+        if (bubble != null) {
+            this.img = "url(http://localhost:8080" + this.data.Avatar_image + ")"
+            bubble.style.backgroundImage = this.img
+        }
         ws.addEventListener('message', (event) => { this.handleUsers(event) });
     },
 
@@ -67,7 +75,6 @@ export default {
 </script>
 
 <style>
-
 .notification {
     position: absolute;
     right: 10px;

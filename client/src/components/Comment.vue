@@ -3,9 +3,9 @@
         <div class="commenth d-flex flex-row">
             <div>
                
-                <img v-if="data.User.Avatar_image == ``" class="commentProfileImg col" src="../assets/images/profile.svg" />
-                <div v-else class="bubble4 col" style="margin-top: 7px; margin-left: 2px;">
+                <div v-if="data.User.Avatar_image != ``" class="bubble4 col" style="margin-top: 7px; margin-left: 2px;">
                 </div>
+                <img v-else class="commentProfileImg col" src="../assets/images/profile.svg" />
             </div>
             <div class="col posthDetails">
                 <RouterLink :to="`/profile/${data.Username}`" style="text-decoration: none; width: 100%;" class="href">
